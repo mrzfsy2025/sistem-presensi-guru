@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Presensi</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --bg-color: #f0f2f5;
+            --font-family: 'Poppins', sans-serif;
+            --status-success: #198754;
+            --status-warning: #ffc107;
+            --status-info: #0dcaf0;
+            --status-danger: #dc3545;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            font-family: var(--font-family);
+            margin: 0;
+        }
+
+        .phone-simulator {
+            width: 375px;
+            height: 812px;
+            background-color: #fff;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-screen {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Agar bisa di-scroll jika daftar panjang */
+        }
+        
+        .page-header {
+            padding: 15px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        .summary-item .count {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .summary-item .label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0 10px;
+            margin: 0;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .history-item .date-info .day {
+            font-weight: 600;
+        }
+        .history-item .date-info .date {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+        .history-item .time-info {
+            text-align: right;
+        }
+        .history-item .time-info .time {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: #fff;
+        }
+        .status-tepat-waktu { background-color: var(--status-success); }
+        .status-terlambat { background-color: var(--status-warning); color: #333; }
+        .status-izin { background-color: var(--status-info); }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-simulator">
+        <div class="app-screen">
+            <main class="main-content">
+                <header class="page-header">
+                    <h1 class="h5 mb-0">Riwayat Bulan September 2025</h1>
+                </header>
+
+                <section class="summary-grid">
+                    <div class="summary-item">
+                        <div class="count" style="color: var(--status-success);">22</div>
+                        <div class="label">Hadir</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="count" style="color: var(--status-warning);">5</div>
+                        <div class="label">Terlambat</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="count" style="color: var(--status-info);">1</div>
+                        <div class="label">Izin/Sakit</div>
+                    </div>
+                </section>
+
+                <ul class="history-list">
+                    <li class="history-item">
+                        <div class="date-info">
+                            <div class="day">Jumat, 19 September</div>
+                            <div class="date">2025</div>
+                        </div>
+                        <div class="time-info">
+                            <div class="time">06:58 - 13:05</div>
+                            <span class="status-badge status-tepat-waktu">Tepat Waktu</span>
+                        </div>
+                    </li>
+                    <li class="history-item">
+                        <div class="date-info">
+                            <div class="day">Kamis, 18 September</div>
+                            <div class="date">2025</div>
+                        </div>
+                        <div class="time-info">
+                            <div class="time">07:12 - 13:00</div>
+                            <span class="status-badge status-terlambat">Terlambat</span>
+                        </div>
+                    </li>
+                    <li class="history-item">
+                        <div class="date-info">
+                            <div class="day">Rabu, 17 September</div>
+                            <div class="date">2025</div>
+                        </div>
+                        <div class="time-info">
+                            <div class="time">-</div>
+                            <span class="status-badge status-izin">Izin Resmi</span>
+                        </div>
+                    </li>
+                </ul>
+
+            </main>
+
+            <nav class="bottom-nav">
+                <div class="nav-item">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Utama</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Riwayat</span>
+                </div>
+                <div class="nav-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span>Pengajuan</span>
+                </div>
+                <div class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profil</span>
+                </div>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

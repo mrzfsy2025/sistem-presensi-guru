@@ -1,0 +1,14 @@
+# Folder dependensi (sangat besar dan dibuat otomatis oleh 'npm install')
+/node_modules
+
+# File environment (berisi data rahasia seperti password database dan JWT Secret)
+.env
+
+# File log (catatan error atau aktivitas server yang tidak perlu disimpan)
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# File sistem operasi (tidak berhubungan langsung dengan kode)
+.DS_Store
+Thumbs.db
