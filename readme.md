@@ -14,7 +14,7 @@ Aplikasi absensi guru berbasis web yang dibangun dengan Node.js dan Express, dil
 
 ## Cara Instalasi & Menjalankan
 1.  **Clone repositori ini:**
-    `git clone [URL_REPO_ANDA]`
+    `git clone [https://github.com/mrzfsy2025/sistem-presensi-guru.git]`
 2.  **Masuk ke direktori proyek:**
     `cd aplikasi-absensi-sekolah`
 3.  **Install semua dependensi:**
