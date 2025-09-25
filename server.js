@@ -1,6 +1,6 @@
 // File: /ABSENSI/server.js
 
-const express = require('require')('express');
+const express = require('express');
 const cors = require('cors');
 require('dotenv').config(); // Panggil dotenv untuk memuat variabel environment
 
