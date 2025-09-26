@@ -34,14 +34,12 @@
             </form>
         </div>
     </div>
-
 <script>
         const loginForm = document.getElementById('login-form');
         const errorMessage = document.getElementById('error-message');
 
         loginForm.addEventListener('submit', async function(event) {
-            // PASTIKAN INI ADALAH BARIS PERTAMA
-            // Mencegah form mengirim data secara default (dengan metode GET)
+
             event.preventDefault(); 
             
             errorMessage.classList.add('d-none');
@@ -50,7 +48,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                // JavaScript mengambil alih pengiriman dengan metode POST
+                // JavaScript akan mengirim dengan metode POST
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
