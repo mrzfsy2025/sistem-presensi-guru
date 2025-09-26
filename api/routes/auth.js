@@ -16,43 +16,31 @@ const JWT_SECRET = '1793-9Y$-.440';
 // =============================================================
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-
     if (!email || !password) {
         return res.status(400).json({ message: 'Email dan password wajib diisi.' });
     }
 
     try {
-        // 1. Cari guru di database berdasarkan email
-        const query = "SELECT * FROM guru WHERE email = ? AND status = 'Aktif';";
-        const [rows] = await db.query(query, [email]);
+        const query = "SELECT * FROM guru WHERE email = $1 AND status = 'Aktif';";
+        // Gunakan $1, $2, dst. untuk parameter di PostgreSQL
+        const result = await db.query(query, [email]);
+        
+        // Ambil data dari result.rows, bukan langsung [rows]
+        const rows = result.rows;
 
-        // Jika email tidak ditemukan
         if (rows.length === 0) {
             return res.status(401).json({ message: 'Email atau password salah.' });
         }
         const guru = rows[0];
 
-        // 2. Bandingkan password yang diinput dengan yang ada di database
         const isPasswordMatch = await bcrypt.compare(password, guru.password_hash);
-
-        // Jika password tidak cocok
         if (!isPasswordMatch) {
             return res.status(401).json({ message: 'Email atau password salah.' });
         }
 
-        // 3. Jika cocok, buatkan JWT Token
-        const payload = {
-        id_guru: guru.id_guru,
-        nama: guru.nama_lengkap,
-        email: guru.email,
-        role: guru.role 
-        };
-
-        const token = jwt.sign(payload, JWT_SECRET, {
-            expiresIn: '8h' // Token berlaku selama 8 jam
-        });
+        const payload = { id_guru: guru.id_guru, nama: guru.nama_lengkap, email: guru.email, role: guru.role };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
         
-        // 4. Kirim token ke frontend
         res.status(200).json({
             message: 'Login berhasil!',
             token: token
@@ -63,5 +51,4 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
-
 module.exports = router;
