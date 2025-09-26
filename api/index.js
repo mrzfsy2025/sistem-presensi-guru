@@ -191,8 +191,4 @@ app.get('api/presensi/riwayat', isGuru, async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
-
-// =============================================================
-// Export aplikasi untuk Vercel
-// =============================================================
 module.exports = app;
