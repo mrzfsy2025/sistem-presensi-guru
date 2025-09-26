@@ -1,8 +1,8 @@
-// File: /ABSENSI/server.js
+// File: /ABSENSI/server.js (VERSI FINAL)
 
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config(); // Panggil dotenv untuk memuat variabel environment
+require('dotenv').config();
 
 const app = express();
 
@@ -37,10 +37,8 @@ app.use('/api/izin', izinRoutes);
 // =============================================================
 // MENJALANKAN SERVER
 // =============================================================
-// Buat variabel PORT (huruf besar)
 const PORT = process.env.PORT || 8080; 
 
-// Baris ini menggunakan variabel PORT (huruf besar) yang sudah kita buat
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server berjalan di port ${PORT}`);
 });
