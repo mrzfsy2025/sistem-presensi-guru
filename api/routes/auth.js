@@ -14,7 +14,7 @@ const JWT_SECRET = '1793-9Y$-.440';
 // ENDPOINT: LOGIN ADMIN/GURU
 // METHOD: POST, URL: /api/auth/login
 // =============================================================
-router.post('/login', async (req, res) => {
+router.post('./login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({ message: 'Email dan password wajib diisi.' });
