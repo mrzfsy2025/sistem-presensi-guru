@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-  "node": "22.19.0"
+  "node": "22.x"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
