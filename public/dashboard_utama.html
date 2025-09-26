@@ -145,7 +145,7 @@
         // Fungsi untuk logout
         function logout() {
             localStorage.removeItem('admin_token');
-            window.location.href = 'login.html';
+            window.location.href = 'login-admin.html';
         }
         document.getElementById('tombol-exit').addEventListener('click', logout);
 
@@ -278,7 +278,7 @@
         if (!token) {
             // Jika tidak ada token, paksa kembali ke halaman login
             alert('Anda harus login terlebih dahulu.');
-            window.location.href = 'login.html';
+            window.location.href = 'login-admin.html';
         } else {
             // 2. Jika token ada, baru jalankan semua fungsi dasbor
             document.getElementById('tombol-exit').addEventListener('click', logout);
