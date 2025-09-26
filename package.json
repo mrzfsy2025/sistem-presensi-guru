@@ -1,5 +1,5 @@
 {
-  "name": "absensi",
+  "name": "ABSENSI",
   "version": "1.0.0",
   "description": "",
   "main": "adminIzin.js",
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-  "node": "20.x"
+  "node": "22.x"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
