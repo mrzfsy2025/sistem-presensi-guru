@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     async function muatPengaturan() {
         try {
-            const response = await fetch('https://sistem-presensi-guru.vercel.app/api/pengaturan', {
+            const response = await fetch('/api/pengaturan', {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (!response.ok) throw new Error('Gagal memuat data pengaturan.');
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            const response = await fetch('https://sistem-presensi-guru.vercel.app/api/pengaturan', {
+            const response = await fetch('/api/pengaturan', {
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token,

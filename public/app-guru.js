@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fungsi untuk mengambil status awal (profil & presensi)
     async function muatDataStatusAwal() {
         try {
-            const response = await fetch('https://sistem-presensi-guru.vercel.app/api/guru/status', {
+            const response = await fetch('/api/guru/status', {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (!response.ok) throw new Error('Gagal memuat data pengguna.');
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const bulan = filterBulanRiwayat.value;
             const tahun = filterTahunRiwayat.value;
-            const response = await fetch(`https://sistem-presensi-guru.vercel.app/api/presensi/riwayat?bulan=${bulan}&tahun=${tahun}`, { headers: { 'Authorization': 'Bearer ' + token } });
+            const response = await fetch(`/api/presensi/riwayat?bulan=${bulan}&tahun=${tahun}`, { headers: { 'Authorization': 'Bearer ' + token } });
             if (!response.ok) throw new Error('Gagal memuat riwayat presensi.');
             const daftarRiwayat = await response.json();
             riwayatList.innerHTML = '';
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             keterangan: document.getElementById('keterangan').value
         };
         try {
-            const response = await fetch('https://sistem-presensi-guru.vercel.app/api/izin', {
+            const response = await fetch('/api/izin', {
                 method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(dataIzin)
             });
             const hasil = await response.json();
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             konfirmasi_password_baru: document.getElementById('konfirmasi-password-baru').value
         };
         try {
-            const response = await fetch('https://sistem-presensi-guru.vercel.app/api/guru/profile/password', {
+            const response = await fetch('/api/guru/profile/password', {
                 method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(dataPassword)
             });
             const hasil = await response.json();

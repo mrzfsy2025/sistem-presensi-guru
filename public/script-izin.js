@@ -12,7 +12,7 @@ async function muatDataIzin() {
     const token = localStorage.getItem('admin_token');
 
     try {
-        const response = await fetch('https://sistem-presensi-guru.vercel.app/api/admin/izin', {
+        const response = await fetch('/api/admin/izin', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         if (!response.ok) throw new Error('Gagal memuat data pengajuan izin.');
@@ -74,7 +74,7 @@ async function updateStatusIzin(id, status) {
 
     try {
         const token = localStorage.getItem('admin_token');
-        const response = await fetch(`https://sistem-presensi-guru.vercel.app/api/admin/izin/${id}/status`, {
+        const response = await fetch(`/api/admin/izin/${id}/status`, {
             method: 'PUT',
             headers: {
                 'Authorization': 'Bearer ' + token,

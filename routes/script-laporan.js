@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tombolCetak.disabled = true; // Nonaktifkan tombol cetak saat loading
 
         try {
-            const response = await fetch(`https://sistem-presensi-guru.vercel.app/api/laporan/bulanan?bulan=${bulan}&tahun=${tahun}`, {
+            const response = await fetch(`/api/laporan/bulanan?bulan=${bulan}&tahun=${tahun}`, {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
 
