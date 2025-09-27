@@ -1,11 +1,6 @@
-// File: /api/database.js
-const { Pool } = require('pg');
+// File: /api/database.js (Versi MySQL)
+const mysql = require('mysql2/promise');
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { 
-        rejectUnauthorized: false 
-    }
-});
+const pool = mysql.createPool(process.env.DATABASE_URL);
 
 module.exports = pool;
