@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tabProfil.addEventListener('click', () => tampilkanView('profil'));
         tabLogout.addEventListener('click', () => {
             localStorage.removeItem('guru_token');
-            window.location.href = 'index.html.html';
+            window.location.href = 'index.html';
         });
 
         // Aksi
