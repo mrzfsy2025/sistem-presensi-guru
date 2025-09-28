@@ -95,26 +95,26 @@ router.post('/forgot-password', async (req, res) => {
         // 5. Konfigurasi "kurir" email (Nodemailer)
         // PENTING: Gunakan detail email Anda sendiri atau layanan email khusus.
         // Contoh ini menggunakan GMail, mungkin perlu penyesuaian keamanan di akun Google Anda.
+        // Membaca dari .env
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'emailanda@gmail.com', // <-- GANTI DENGAN EMAIL ANDA
-                pass: 'passwordaplikasianda' // <-- GANTI DENGAN APP PASSWORD DARI GMAIL
+                user: process.env.EMAIL_USER, 
+                pass: process.env.EMAIL_PASS  
             }
-        });
+        });        
 
         // 6. Buat link reset dan isi email
         const resetUrl = `http://localhost:8080/reset-password.html?token=${resetToken}`;
         const mailOptions = {
             to: guru.email,
-            from: 'Admin Absensi <emailanda@gmail.com>', // <-- GANTI DENGAN EMAIL ANDA
+            from: `Admin Absensi <${process.env.EMAIL_USER}>`, // <-- Perbarui ini
             subject: 'Reset Password Akun Absensi Anda',
             text: `Anda menerima email ini karena Anda (atau orang lain) meminta untuk mereset password akun Anda.\n\n` +
                   `Silakan klik link di bawah ini, atau salin-tempel ke browser Anda untuk melanjutkan:\n\n` +
                   `${resetUrl}\n\n` +
                   `Jika Anda tidak meminta ini, silakan abaikan email ini dan password Anda akan tetap aman.\n`
         };
-
         // 7. Kirim email
         await transporter.sendMail(mailOptions);
         
