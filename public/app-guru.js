@@ -1,4 +1,4 @@
-// File: /public/app-guru.js (VERSI FINAL YANG SUDAH DIRAPIKAN)
+// File: /public/app-guru.js 
 
 document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
@@ -74,9 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update UI Profil di header dan di halaman profil
             namaGuruElem.textContent = data.profil.nama_lengkap;
-            nipGuruElem.textContent = data.profil.nip_nuptk;
+            nipGuruElem.textContent = data.profil.nip_nipppk;
             document.getElementById('profil-nama').textContent = data.profil.nama_lengkap;
-            document.getElementById('profil-nip').textContent = data.profil.nip_nuptk;
+            document.getElementById('profil-nip').textContent = data.profil.nip_nipppk;
             document.getElementById('profil-email').textContent = data.profil.email;
             
             // Update UI kartu presensi
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // =================================================================
-    // BAGIAN 5: FUNGSI-FUNGSI LOGIKA (Pekerja Keras)
+    // BAGIAN 5: FUNGSI-FUNGSI LOGIKA 
     // =================================================================
     
     // Fungsi untuk Presensi

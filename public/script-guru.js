@@ -39,7 +39,7 @@ async function muatDataGuru() {
             const baris = `
                 <tr id="baris-guru-${guru.id_guru}">
                     <td>${guru.nama_lengkap}</td>
-                    <td>${guru.nip_nuptk}</td>
+                    <td>${guru.nip_nipppk}</td>
                     <td>${guru.jabatan}</td>
                     <td>${statusBadge}</td>
                     <td>
@@ -89,7 +89,7 @@ async function bukaFormEdit(id) {
         
         document.getElementById('edit-id-guru').value = guru.id_guru;
         document.getElementById('edit-nama').value = guru.nama_lengkap;
-        document.getElementById('edit-nip').value = guru.nip_nuptk;
+        document.getElementById('edit-nip').value = guru.nip_nipppk;
         document.getElementById('edit-jabatan').value = guru.jabatan;
         document.getElementById('edit-email').value = guru.email;
 
@@ -104,7 +104,7 @@ document.getElementById('form-edit-guru').addEventListener('submit', async funct
     const id = document.getElementById('edit-id-guru').value;
     const dataUpdate = {
         nama_lengkap: document.getElementById('edit-nama').value,
-        nip_nuptk: document.getElementById('edit-nip').value,
+        nip_nipppk: document.getElementById('edit-nip').value,
         jabatan: document.getElementById('edit-jabatan').value,
         email: document.getElementById('edit-email').value,
     };
@@ -139,7 +139,7 @@ document.getElementById('form-tambah-guru').addEventListener('submit', async fun
     console.log("Form 'Tambah Guru' disubmit, proses fetch dimulai...");
     const dataGuruBaru = {
         nama_lengkap: document.getElementById('tambah-nama').value,
-        nip_nuptk: document.getElementById('tambah-nip').value,
+        nip_nipppk: document.getElementById('tambah-nip').value,
         jabatan: document.getElementById('tambah-jabatan').value,
         email: document.getElementById('tambah-email').value,
         password: document.getElementById('tambah-password').value

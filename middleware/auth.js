@@ -1,4 +1,4 @@
-// File: /ABSENSI/middleware/auth.js (VERSI DISEMPURNAKAN)
+// File: /ABSENSI/middleware/auth.js (DISEMPURNAKAN)
 
 const jwt = require('jsonwebtoken');
 

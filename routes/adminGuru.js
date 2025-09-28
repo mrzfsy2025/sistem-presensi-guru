@@ -11,7 +11,7 @@ const router = express.Router();
 const db = require('../database'); 
 
 // Import middleware untuk otentikasi (asumsi Anda punya file ini)
-  // const { isAdmin } = require('../middleware/auth');
+const { isAdmin } = require('../middleware/auth');
 
 // =================================================================
 // BAGIAN 1: READ (Melihat semua data guru)
@@ -19,7 +19,7 @@ const db = require('../database');
 // =================================================================
 router.get('/', async (req, res) => {
   try {
-    const query = "SELECT id_guru, nama_lengkap, nip_nuptk, jabatan, email, status FROM guru ORDER BY nama_lengkap ASC;";
+    const query = "SELECT id_guru, nama_lengkap, nip_nipppk, jabatan, email, status FROM guru ORDER BY nama_lengkap ASC;";
     const [rows] = await db.query(query);
     res.status(200).json(rows);
   } catch (error) {
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 router.get('/:id_guru', async (req, res) => {
   try {
     const { id_guru } = req.params;
-    const query = "SELECT id_guru, nama_lengkap, nip_nuptk, jabatan, email FROM guru WHERE id_guru = ?;";
+    const query = "SELECT id_guru, nama_lengkap, nip_nipppk, jabatan, email FROM guru WHERE id_guru = ?;";
     const [rows] = await db.query(query, [id_guru]);
     
     if (rows.length === 0) {
@@ -53,10 +53,10 @@ router.get('/:id_guru', async (req, res) => {
 // METHOD: POST, ENDPOINT: /api/admin/guru
 // =================================================================
 router.post('/', async (req, res) => {
-  const { nama_lengkap, nip_nuptk, jabatan, email, password } = req.body;
+  const { nama_lengkap, nip_nipppk, jabatan, email, password } = req.body;
 
   // Validasi data dasar
-  if (!nama_lengkap || !nip_nuptk || !email || !password) {
+  if (!nama_lengkap || !nip_nipppk || !email || !password) {
     return res.status(400).json({ message: "Semua kolom wajib diisi." });
   }
 
@@ -66,14 +66,14 @@ router.post('/', async (req, res) => {
     const password_hash = await bcrypt.hash(password, salt);
 
     // 2. Simpan ke database
-    const query = "INSERT INTO guru (nama_lengkap, nip_nuptk, jabatan, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?);";
-    await db.query(query, [nama_lengkap, nip_nuptk, jabatan, email, password_hash, 'Aktif']);
+    const query = "INSERT INTO guru (nama_lengkap, nip_nipppk, jabatan, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?);";
+    await db.query(query, [nama_lengkap, nip_nipppk, jabatan, email, password_hash, 'Aktif']);
   
     res.status(201).json({ message: "Guru baru berhasil ditambahkan." });
   } catch (error) {
     // Tangani error jika NIP/email sudah ada (unique constraint)
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: "NIP/NUPTK atau email sudah terdaftar." });
+      return res.status(409).json({ message: "NIP/NIPPPK atau email sudah terdaftar." });
     }
     console.error("Error saat membuat guru baru:", error);
     res.status(500).json({ message: "Terjadi error pada server." });
@@ -86,15 +86,15 @@ router.post('/', async (req, res) => {
 // =================================================================
 router.put('/:id_guru', async (req, res) => {
   const { id_guru } = req.params;
-  const { nama_lengkap, nip_nuptk, jabatan, email } = req.body;
+  const { nama_lengkap, nip_nipppk, jabatan, email } = req.body;
 
-  if (!nama_lengkap || !nip_nuptk || !email) {
-    return res.status(400).json({ message: "Nama, NIP/NUPTK, dan email wajib diisi." });
+  if (!nama_lengkap || !nip_nipppk || !email) {
+    return res.status(400).json({ message: "Nama, NIP/NIPPPK, dan email wajib diisi." });
   }
 
   try {
-    const query = "UPDATE guru SET nama_lengkap = ?, nip_nuptk = ?, jabatan = ?, email = ? WHERE id_guru = ?;";
-    const [result] = await db.query(query, [nama_lengkap, nip_nuptk, jabatan, email, id_guru]);
+    const query = "UPDATE guru SET nama_lengkap = ?, nip_nipppk = ?, jabatan = ?, email = ? WHERE id_guru = ?;";
+    const [result] = await db.query(query, [nama_lengkap, nip_nipppk, jabatan, email, id_guru]);
 
     // Jika tidak ada baris yang ter-update, berarti ID tidak ditemukan
     if (result.affectedRows === 0) {
@@ -104,7 +104,7 @@ router.put('/:id_guru', async (req, res) => {
     res.status(200).json({ message: "Data guru berhasil diperbarui." });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: "NIP/NUPTK atau email sudah digunakan oleh guru lain." });
+      return res.status(409).json({ message: "NIP/NIPPPK atau email sudah digunakan oleh guru lain." });
     }
     console.error("Error saat memperbarui data guru:", error);
     res.status(500).json({ message: "Terjadi error pada server." });
@@ -134,5 +134,4 @@ router.delete('/:id_guru', async (req, res) => {
 });
 
 
-// Jangan lupa export router-nya agar bisa digunakan di file utama
 module.exports = router;

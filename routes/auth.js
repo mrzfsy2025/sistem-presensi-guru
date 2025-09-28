@@ -3,11 +3,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../database'); // Memanggil file database.js
+const db = require('../database'); 
 const router = express.Router();
 
-// Kunci rahasia JWT. Ini HARUS SAMA PERSIS dengan kunci
-// yang ada di dalam file middleware/auth.js
 const JWT_SECRET = '1793-9Y$-.440';
 
 // =============================================================

@@ -44,7 +44,7 @@ router.get('/bulanan', isAdmin, async (req, res) => {
       SELECT
         g.id_guru,
         g.nama_lengkap,
-        g.nip_nuptk,
+        g.nip_nipppk,
         COALESCE(p.total_hadir, 0) AS hadir,
         COALESCE(p.total_terlambat, 0) AS terlambat,
         COALESCE(i.total_sakit, 0) AS sakit,

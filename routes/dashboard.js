@@ -1,13 +1,11 @@
 // File: /routes/dashboard.js
+
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-// Kita butuh middleware untuk memastikan hanya admin yang bisa akses
-// const { isAdmin } = require('../middleware/auth');
+const { isAdmin } = require('../middleware/auth');
 
-// Endpoint untuk mendapatkan data ringkasan dasbor
-const { isAdmin } = require('../middleware/auth'); // <-- Pastikan ini aktif
-router.get('/summary', isAdmin, async (req, res) => { // <-- Hapus /* dan */
+router.get('/summary', isAdmin, async (req, res) => { 
     try {
         const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
 console.log(`Mencari data untuk tanggal: ${tanggal_hari_ini}`); // Log Tanggal
@@ -20,7 +18,7 @@ console.log(`Mencari data untuk tanggal: ${tanggal_hari_ini}`); // Log Tanggal
              FROM presensi WHERE tanggal = ?;`,
             [tanggal_hari_ini]
         );
-console.log("Hasil Query Presensi:", presensiSummary); // <-- TAMBAHKAN INI
+console.log("Hasil Query Presensi:", presensiSummary); 
 
         // 2. Menghitung ringkasan izin/sakit (VERSI PERBAIKAN)
         const [izinSummary] = await db.query(
@@ -28,7 +26,7 @@ console.log("Hasil Query Presensi:", presensiSummary); // <-- TAMBAHKAN INI
             WHERE status = 'Disetujui' AND tanggal_mulai <= ? AND tanggal_selesai >= ?;`,
             [tanggal_hari_ini, tanggal_hari_ini]
         );
-console.log("Hasil Query Izin/Sakit:", izinSummary); // <-- TAMBAHKAN INI
+console.log("Hasil Query Izin/Sakit:", izinSummary);
 
         // 3. Menghitung total guru aktif
         const [totalGuru] = await db.query("SELECT COUNT(*) as total_aktif FROM guru WHERE status = 'Aktif';");
@@ -45,7 +43,7 @@ console.log("Hasil Query Izin/Sakit:", izinSummary); // <-- TAMBAHKAN INI
             ORDER BY waktu_aksi DESC LIMIT 5;`,
             [tanggal_hari_ini, tanggal_hari_ini]
         );
-console.log("Hasil Query Total Guru:", totalGuru); // <-- TAMBAHKAN INI
+console.log("Hasil Query Total Guru:", totalGuru); 
 
         // 5. Mengambil 5 permintaan izin yang menunggu persetujuan
         const [permintaanIzin] = await db.query(

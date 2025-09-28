@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <td>${index + 1}</td>
                         <td class="text-start">${guru.nama_lengkap}</td>
-                        <td>${guru.nip_nuptk}</td>
+                        <td>${guru.nip_nipppk}</td>
                         <td>${guru.hadir}</td>
                         <td>${guru.sakit}</td>
                         <td>${guru.izin}</td>
@@ -87,14 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =================================================================
-    // BAGIAN C: Mengaktifkan Tombol
+    // BAGIAN C: Mengaktifkan Tombol Cetak
     // =================================================================
     tombolTampilkan.addEventListener('click', tampilkanLaporan);
-    
+
     tombolCetak.addEventListener('click', () => {
-        window.print(); // Fungsi bawaan browser untuk mencetak
+        window.print(); 
     });
 
-    // Panggil fungsi untuk mengisi filter saat halaman pertama kali dimuat
+    // Panggil fungsi filter saat halaman pertama kali dimuat
     isiFilter();
 });

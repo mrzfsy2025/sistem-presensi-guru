@@ -17,7 +17,7 @@ router.get('/status', isGuru, async (req, res) => {
     try {
         // Query 1: Ambil data profil guru
         const [profilRows] = await db.query(
-            "SELECT nama_lengkap, nip_nuptk, email FROM guru WHERE id_guru = ?;", // Tambahkan email
+            "SELECT nama_lengkap, nip_nipppk, email FROM guru WHERE id_guru = ?;", // Tambahkan email
             [id_guru]
         );
         if (profilRows.length === 0) {
