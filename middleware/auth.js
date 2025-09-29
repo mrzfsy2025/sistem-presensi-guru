@@ -2,7 +2,7 @@
 
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = '1793-9Y$-.440';
+const JWT_SECRET = '/.env';
 
 // Middleware umum untuk memeriksa token (bisa dipakai admin/guru)
 const verifyToken = (req, res, next) => {

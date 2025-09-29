@@ -8,7 +8,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-const JWT_SECRET = '1793-9Y$-.440';
+const JWT_SECRET = '/.env';
 
 // =============================================================
 // ENDPOINT: LOGIN ADMIN/GURU
