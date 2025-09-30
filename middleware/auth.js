@@ -1,10 +1,10 @@
 // File: /ABSENSI/middleware/auth.js (DISEMPURNAKAN)
 
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
-const JWT_SECRET = '/.env';
+const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-default';
 
-// Middleware umum untuk memeriksa token (bisa dipakai admin/guru)
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -132,6 +132,38 @@ router.delete('/:id_guru', async (req, res) => {
     res.status(500).json({ message: "Terjadi error pada server." });
   }
 });
+// =================================================================
+// BAGIAN 5: RESET (Reset - Password)
+// METHOD: Reset-Password, ENDPOINT: /api/auth/forgot-password/:id_guru
+// =================================================================
 
+
+router.post('/:id_guru/reset-password', isAdmin, async (req, res) => {
+    const { id_guru } = req.params;
+    const { password_baru } = req.body;
+
+    if (!password_baru || password_baru.length < 6) {
+        return res.status(400).json({ message: 'Password baru minimal harus 6 karakter.' });
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const password_hash_baru = await bcrypt.hash(password_baru, salt);
+
+        const [result] = await db.query(
+            "UPDATE guru SET password_hash = ? WHERE id_guru = ?;",
+            [password_hash_baru, id_guru]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Guru tidak ditemukan.' });
+        }
+
+        res.status(200).json({ message: 'Password guru berhasil direset.' });
+    } catch (error) {
+        console.error("Error saat reset password:", error);
+        res.status(500).json({ message: "Terjadi error pada server." });
+    }
+});
 
 module.exports = router;

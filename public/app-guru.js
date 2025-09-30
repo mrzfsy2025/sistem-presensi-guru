@@ -39,6 +39,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const formIzin = document.getElementById('form-izin');
     const formUbahPassword = document.getElementById('form-ubah-password');
 
+    const cameraModal = new bootstrap.Modal(document.getElementById('cameraModal'));
+    const videoElem = document.getElementById('camera-preview');
+    const canvasElem = document.getElementById('camera-canvas');
+    const tombolAmbilFoto = document.getElementById('tombol-ambil-foto');
+    let stream;
+
     // =================================================================
     // BAGIAN 2: FUNGSI UTAMA & INISIALISASI
     // =================================================================
@@ -149,29 +155,20 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'SUDAH_PULANG': statusPresensiElem.textContent = `Anda sudah presensi pulang pada jam ${status.jam_pulang}`; teksTombolPresensi.textContent = "Selesai"; tombolPresensi.className = 'btn btn-secondary btn-lg w-100'; tombolPresensi.disabled = true; break;
         }
     }
-    async function lakukanPresensi() {
-        if (!statusSaatIni) return;
-        const dataSimulasi = { latitude: -3.7885, longitude: 102.2600, foto_base64: "data:image/jpeg;base64,/9j/4AAQSkZJRg..." };
-        let endpoint = statusSaatIni === 'BELUM_MASUK' ? '/api/presensi/masuk' : '/api/presensi/pulang';
-        let bodyData = statusSaatIni === 'BELUM_MASUK' ? { ...dataSimulasi, foto_masuk: dataSimulasi.foto_base64 } : { ...dataSimulasi, foto_pulang: dataSimulasi.foto_base64 };
-        if (statusSaatIni === 'SUDAH_PULANG') return;
+   async function lakukanPresensi() {
+        if (!statusSaatIni || statusSaatIni === 'SUDAH_PULANG') return;
 
         try {
-            tombolPresensi.disabled = true; teksTombolPresensi.textContent = 'Mengirim...';
-            const response = await fetch(endpoint, {
-                method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(bodyData)
-            });
-            const hasil = await response.json();
-            if (!response.ok) throw new Error(hasil.message);
-            alert(hasil.message);
-            muatDataStatusAwal();
+            // 1. Minta akses dan nyalakan kamera
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            videoElem.srcObject = stream;
+            cameraModal.show(); // Tampilkan modal kamera
         } catch (error) {
-            console.error('Error Presensi:', error); alert(error.message); tombolPresensi.disabled = false;
-            muatDataStatusAwal(); // Muat ulang status meski gagal
+            console.error("Error mengakses kamera:", error);
+            alert("Gagal mengakses kamera. Pastikan Anda memberikan izin.");
         }
     }
-
-    // Fungsi untuk Riwayat
+        // Fungsi untuk Riwayat
     function isiFilterRiwayat() {
         const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const tanggalSekarang = new Date();
@@ -246,9 +243,61 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`Error: ${error.message}`);
         }
     }
+      // EVENT LISTENER BARU UNTUK TOMBOL PENGAMBIL FOTO
+    tombolAmbilFoto.addEventListener('click', async () => {
+        // 2. Ambil gambar dari video
+        canvasElem.width = videoElem.videoWidth;
+        canvasElem.height = videoElem.videoHeight;
+        canvasElem.getContext('2d').drawImage(videoElem, 0, 0, videoElem.videoWidth, videoElem.videoHeight);
+        const foto_base64 = canvasElem.toDataURL('image/jpeg');
 
-    // =================================================================
-    // BAGIAN 6: JALANKAN APLIKASI
-    // =================================================================
+        // Matikan kamera
+        stream.getTracks().forEach(track => track.stop());
+        cameraModal.hide();
+
+        // 3. Ambil lokasi GPS
+        statusPresensiElem.textContent = 'Mengambil lokasi GPS...';
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true });
+            });
+
+            const dataPresensi = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+            };
+
+            // 4. Kirim data ke server (sama seperti sebelumnya)
+            let endpoint = '';
+            if (statusSaatIni === 'BELUM_MASUK') {
+                endpoint = '/api/presensi/masuk';
+                dataPresensi.foto_masuk = foto_base64;
+            } else { // SUDAH_MASUK
+                endpoint = '/api/presensi/pulang';
+                dataPresensi.foto_pulang = foto_base64;
+            }
+            
+            tombolPresensi.disabled = true;
+            teksTombolPresensi.textContent = 'Mengirim...';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataPresensi)
+            });
+            const hasil = await response.json();
+            if (!response.ok) throw new Error(hasil.message);
+            
+            alert(hasil.message);
+            init(); // Muat ulang status
+
+        } catch (error) {
+            console.error('Error Presensi:', error);
+            alert(error.message);
+            tombolPresensi.disabled = false;
+            init(); // Muat ulang status
+        }
+    });
+ 
     init();
 });

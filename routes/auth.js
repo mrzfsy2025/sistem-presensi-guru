@@ -8,7 +8,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-const JWT_SECRET = '/.env';
+const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-default';
 
 // =============================================================
 // ENDPOINT: LOGIN ADMIN/GURU
