@@ -6,6 +6,7 @@
 // Simpan referensi ke modal Bootstrap untuk digunakan nanti
 const tambahModal = new bootstrap.Modal(document.getElementById('tambahGuruModal'));
 const editModal = new bootstrap.Modal(document.getElementById('editGuruModal'));
+const resetPasswordModal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
 
 // =================================================================
 // BAGIAN A: READ (Menampilkan Daftar Guru Saat Halaman Dibuka)
@@ -45,8 +46,9 @@ async function muatDataGuru() {
                     <td>
                         <button class="btn btn-warning btn-sm" onclick="bukaFormEdit(${guru.id_guru})"><i class="bi bi-pencil-square"></i> Edit</button>
                         <button class="btn btn-danger btn-sm" onclick="hapusGuru(${guru.id_guru})"><i class="bi bi-trash-fill"></i> Hapus</button>
+                        <button class="btn btn-warning btn-sm" onclick="bukaFormReset(${guru.id_guru}, '${guru.nama_lengkap}')">Reset Password</button>
                     </td>
-                </tr>
+                    </tr>
             `;
             tabelBody.innerHTML += baris;
         });
@@ -98,7 +100,7 @@ async function bukaFormEdit(id) {
         alert(`Error: ${error.message}`);
     }
 }
-
+// Event listener untuk menangani submit form edit
 document.getElementById('form-edit-guru').addEventListener('submit', async function(event) {
     event.preventDefault();
     const id = document.getElementById('edit-id-guru').value;
@@ -132,7 +134,7 @@ document.getElementById('form-edit-guru').addEventListener('submit', async funct
 }); 
 
 // =================================================================
-// BAGIAN D: CREATE (Mengaktifkan Form Tambah Guru)
+// BAGIAN E: CREATE (Mengaktifkan Form Tambah Guru)
 // =================================================================
 document.getElementById('form-tambah-guru').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -166,6 +168,46 @@ document.getElementById('form-tambah-guru').addEventListener('submit', async fun
         muatDataGuru();
     } catch (error) {
         console.error("Terjadi error:", error.message);
+        alert(`Error: ${error.message}`);
+    }
+});
+
+// =================================================================
+// BAGIAN BARU: LOGIKA UNTUK RESET PASSWORD OLEH ADMIN
+// =================================================================
+
+function bukaFormReset(id, nama) {
+    document.getElementById('reset-id-guru').value = id;
+    document.getElementById('nama-guru-reset').textContent = nama;
+    resetPasswordModal.show();
+}
+
+// Event listener untuk menangani submit form reset password
+document.getElementById('form-reset-password').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const id = document.getElementById('reset-id-guru').value;
+    const password_baru = document.getElementById('password-baru-input').value;
+    
+    if (!confirm(`Anda yakin ingin mereset password untuk guru ini?`)) return;
+
+    try {
+        const token = localStorage.getItem('admin_token');
+        const response = await fetch(`/api/admin/guru/${id}/reset-password`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ password_baru: password_baru })
+        });
+
+        const hasil = await response.json();
+        if (!response.ok) throw new Error(hasil.message);
+        
+        alert(hasil.message);
+        resetPasswordModal.hide();
+        this.reset(); // Kosongkan form setelah berhasil
+    } catch(error) {
         alert(`Error: ${error.message}`);
     }
 });
