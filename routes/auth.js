@@ -122,7 +122,7 @@ router.post('/forgot-password', async (req, res) => {
 
     } catch (error) {
         console.error("Error saat forgot-password:", error);
-        res.status(500).json({ message: "Terjadi error pada server." });
+        res.status(500).json({ message: "Terjadi error pada server. Hubungi Admin !" });
     }
 });
 // =============================================================
@@ -160,7 +160,7 @@ router.post('/reset-password', async (req, res) => {
 
     } catch (error) {
         console.error("Error saat reset-password:", error);
-        res.status(500).json({ message: "Terjadi error pada server." });
+        res.status(500).json({ message: "Terjadi error pada server. Hubungi Admin !" });
     }
 });
 module.exports = router;
