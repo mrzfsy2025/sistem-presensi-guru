@@ -150,12 +150,24 @@ document.addEventListener('DOMContentLoaded', function() {
         statusSaatIni = status.kondisi;
         tombolPresensi.disabled = false;
         switch (status.kondisi) {
-            case 'BELUM_MASUK': statusPresensiElem.textContent = "Anda belum melakukan presensi masuk hari ini."; teksTombolPresensi.textContent = "Presensi Masuk"; tombolPresensi.className = 'btn btn-primary btn-lg w-100'; break;
-            case 'SUDAH_MASUK': statusPresensiElem.textContent = `Anda sudah presensi masuk pada jam ${status.jam_masuk || '-'}`; teksTombolPresensi.textContent = "Presensi Pulang"; tombolPresensi.className = 'btn btn-success btn-lg w-100'; break;
-            case 'SUDAH_PULANG': statusPresensiElem.textContent = `Anda sudah presensi pulang pada jam ${status.jam_pulang}`; teksTombolPresensi.textContent = "Selesai"; tombolPresensi.className = 'btn btn-secondary btn-lg w-100'; tombolPresensi.disabled = true; break;
+        case 'BELUM_MASUK': 
+            statusPresensiElem.textContent = "Anda belum melakukan presensi masuk hari ini."; 
+            teksTombolPresensi.textContent = "Presensi Masuk"; 
+            tombolPresensi.className = 'btn btn-primary btn-lg w-100'; 
+            break;
+        case 'SUDAH_MASUK':
+            statusPresensiElem.textContent = `Anda sudah presensi masuk pada jam ${formatWaktuLokal(status.jam_masuk)}`; 
+            teksTombolPresensi.textContent = "Presensi Pulang";
+
+            break;
+        case 'SUDAH_PULANG':
+            statusPresensiElem.textContent = `Anda sudah presensi pulang pada jam ${formatWaktuLokal(status.jam_pulang)}`;
+            teksTombolPresensi.textContent = "Selesai";
+            break;        
+            }
         }
-    }
-   async function lakukanPresensi() {
+
+    async function lakukanPresensi() {
         if (!statusSaatIni || statusSaatIni === 'SUDAH_PULANG') return;
 
         try {
@@ -193,7 +205,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             daftarRiwayat.forEach(item => {
                 const tanggal = new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
-                riwayatList.innerHTML += `<tr><td>${tanggal}</td><td><span class="badge bg-primary">${item.jam_masuk || '-'}</span></td><td><span class="badge bg-success">${item.jam_pulang || '-'}</span></td><td>${item.status}</td></tr>`;
+                riwayatList.innerHTML += `
+                    <tr>
+                        <td>${tanggal}</td>
+                        <td><span class="badge bg-primary">${formatWaktuLokal(item.jam_masuk)}</span></td> <td><span class="badge bg-success">${formatWaktuLokal(item.jam_pulang)}</span></td> <td>${item.status}</td>
+                    </tr>
+                `;
             });
         } catch(error) {
             riwayatList.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error: ${error.message}</td></tr>`;
@@ -298,6 +315,20 @@ document.addEventListener('DOMContentLoaded', function() {
             init(); // Muat ulang status
         }
     });
+    // =================================================================
+    // FUNGSI UBAH FORMAT WAKTU
+    // =================================================================
+    function formatWaktuLokal(waktuUTC) {
+        if (!waktuUTC) return '-'; 
+
+        const tanggalUTC = new Date(`1970-01-01T${waktuUTC}Z`);
+
+        return tanggalUTC.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
  
     init();
 });
