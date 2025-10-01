@@ -91,15 +91,5 @@ router.get('/riwayat', isGuru, async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
-    function formatWaktuLokal(waktuUTC) {
-        if (!waktuUTC) return '-'; 
 
-        const tanggalUTC = new Date(`1970-01-01T${waktuUTC}Z`);
-
-        return tanggalUTC.toLocaleTimeString('id-ID', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-    }
 module.exports = router;
