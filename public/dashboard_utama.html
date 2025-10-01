@@ -191,14 +191,17 @@
                 aktivitasList.innerHTML = ''; // Kosongkan list
                 if (data.aktivitas_terkini.length > 0) {
                 data.aktivitas_terkini.forEach(aktivitas => {
-                    const jam = aktivitas.waktu_aksi.slice(0, 5);
+                    // Gunakan fungsi formatWaktuLokal yang sudah ada
+                    const jamTampil = formatWaktuLokal(aktivitas.waktu_aksi); 
                     let badge;
+
                     if (aktivitas.jenis_aktivitas === 'Presensi Masuk') {
                         const badgeClass = aktivitas.status === 'Terlambat' ? 'bg-warning' : 'bg-success';
-                        badge = `<span class="badge ${badgeClass}">${aktivitas.status} (${jam})</span>`;
+                        badge = `<span class="badge ${badgeClass}">${aktivitas.status} (${jamTampil})</span>`;
                     } else {
-                        badge = `<span class="badge bg-primary">Pulang (${jam})</span>`;
+                        badge = `<span class="badge bg-primary">Pulang (${jamTampil})</span>`;
                     }
+
                     aktivitasList.innerHTML += `
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
@@ -209,7 +212,6 @@
                         </li>
                     `;
                 });
-
                 } else {
                     aktivitasList.innerHTML = '<li class="list-group-item text-muted">Belum ada aktivitas presensi hari ini.</li>';
                 }
