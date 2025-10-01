@@ -295,6 +295,15 @@
             muatDataDasbor(token); // Panggil fungsi muat data lagi
         }
     });
+
+    function formatWaktuLokal(waktuUTC) {
+        if (!waktuUTC) return '-';
+        const tanggalUTC = new Date(`1970-01-01T${waktuUTC}Z`);
+        return tanggalUTC.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
     </script>
 </body>
 </html>
