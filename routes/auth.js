@@ -103,8 +103,6 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
-
-// --- ENDPOINT PROSES PASSWORD BARU ---
 router.post('/reset-password', async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) {
