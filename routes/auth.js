@@ -99,7 +99,7 @@ router.post('/forgot-password', async (req, res) => {
         res.status(200).json({ message: "Email reset password telah berhasil dikirim." });
     } catch (error) {
         console.error("Error saat forgot-password:", error);
-        res.status(500).json({ message: "Terjadi error pada server saat mengirim email." });
+        res.status(500).json({ message: "Terjadi error pada server saat mengirim email. Hubungi Admin !" });
     }
 });
 
