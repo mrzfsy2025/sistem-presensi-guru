@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 resetStatus.textContent = result.message;
                 resetStatus.style.color = 'green';
-                resetForm.style.display = 'none'; 
+                resetForm.style.display = 'none'; // Sembunyikan form setelah berhasil
             } else {
                 throw new Error(result.message || 'Gagal mereset password.');
             }

@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Tampilkan modal saat link "Lupa Password" diklik
     link.onclick = function(event) {
-        event.preventDefault(); // Mencegah link pindah halaman
+        event.preventDefault(); 
         modal.style.display = 'block';
-        statusMessage.textContent = ''; // Kosongkan pesan status
+        statusMessage.textContent = ''; 
     }
 
     // Sembunyikan modal saat tombol close (x) diklik
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Proses saat form lupa password di-submit
     forgotPasswordForm.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Mencegah form reload halaman
+        event.preventDefault(); 
         
         const email = document.getElementById('email').value;
         statusMessage.textContent = 'Memproses permintaan Anda...';
