@@ -105,7 +105,7 @@ router.post('/forgot-password', async (req, res) => {
         });        
 
         // 6. Buat link reset dan isi email
-        const resetUrl = `sistem-presensi-guru-production-3b6d.up.railway.app?token=${resetToken}`;
+        const resetUrl = `sistem-presensi-guru-production-3b6d.up.railway.app/reset-password.html?token=${resetToken}`;
         const mailOptions = {
             to: guru.email,
             from: `Admin Absensi <${process.env.EMAIL_USER}>`, // <-- Perbarui ini

@@ -1,9 +1,25 @@
 // File: /routes/guru.js
+
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs'); // Modul File System untuk menghapus file
 const db = require('../database');
 const { isGuru } = require('../middleware/auth'); // Kita gunakan middleware yang sama
 const bcrypt = require('bcryptjs');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // Pastikan folder ini ada di proyek Anda
+        cb(null, 'public/uploads/'); 
+    },
+    filename: function (req, file, cb) {
+        // Buat nama file yang unik untuk menghindari duplikasi
+        cb(null, 'guru-' + Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
 // =================================================================
 // ENDPOINT: Mengambil profil & status presensi guru yang sedang login

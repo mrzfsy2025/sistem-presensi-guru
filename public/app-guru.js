@@ -1,5 +1,6 @@
 // File: /public/app-guru.js 
 
+
 document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     // BAGIAN 1: DEKLARASI VARIABEL & REFERENSI ELEMEN
