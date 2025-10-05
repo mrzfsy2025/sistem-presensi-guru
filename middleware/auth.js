@@ -13,20 +13,19 @@ const verifyToken = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded; // Tempelkan data user (termasuk id_guru) ke request
+        req.user = decoded; // data user (termasuk id_guru) ke request
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Token tidak valid.' });
     }
 };
 
-// Kita bisa buat alias agar lebih mudah dibaca
 const isAdmin = (req, res, next) => {
-    // Pertama, verifikasi tokennya
+    // verifikasi tokennya
     verifyToken(req, res, () => {
-        // Setelah token valid, periksa rolenya
+        // token valid, periksa rolenya
         if (req.user && req.user.role === 'Admin') {
-            next(); // Lanjutkan jika dia adalah Admin
+            next(); // Lanjutkan jika Admin
         } else {
             // Tolak jika bukan Admin
             res.status(403).json({ message: 'Akses ditolak. Hanya untuk Admin.' });

@@ -88,24 +88,23 @@ router.post('/forgot-password', async (req, res) => {
         const resetUrl = `https://sistem-presensi-guru-production-3b6d.up.railway.app/reset-password.html?token=${resetToken}`;
         
         await transporter.sendMail({
-            to: guru.email,
-            from: `Admin Absensi <${process.env.EMAIL_USER}>`,
-            subject: 'Reset Password Akun Absensi',
+            to: guru.email, // Memastikan 'to' email dari database yang cocok
+            from: `Admin Absensi <${process.env.EMAIL_USER}>`, // 'from' harus menggunakan email yang sama dengan yang login
+            subject: 'Reset Password Akun Absensi Anda',
             text: `Anda menerima email ini karena ada permintaan untuk mereset password.\n\nKlik link ini untuk melanjutkan:\n${resetUrl}\n\nJika Anda tidak meminta ini, abaikan email ini.`
         });
-        
         res.status(200).json({ message: "Email reset password telah berhasil dikirim." });
     } catch (err) { 
-    console.error("====================== KESALAHAN KRITIS TERDETEKSI ======================");
-    console.error("TIPE DATA ERROR:", typeof err);
-    console.error("ERROR JIKA DIUBAH KE STRING:", String(err));
-    // Cetak seluruh struktur objek error secara mendalam
-    console.error("INSPEKSI PENUH OBJEK ERROR:");
-    console.dir(err, { depth: null, colors: true });
-    console.error("========================================================================");
+        console.error("====================== KESALAHAN KRITIS TERDETEKSI ======================");
+        console.error("TIPE DATA ERROR:", typeof err);
+        console.error("ERROR JIKA DIUBAH KE STRING:", String(err));
+        // Cetak seluruh struktur objek error secara mendalam
+        console.error("INSPEKSI PENUH OBJEK ERROR:");
+        console.dir(err, { depth: null, colors: true });
+        console.error("========================================================================");
 
-    res.status(500).json({ message: "Terjadi error pada server saat mengirim email. Hubungi Admin !" });
-}
+        res.status(500).json({ message: "Terjadi error pada server saat mengirim email. Hubungi Admin !" });
+    }
 });
 
 router.post('/reset-password', async (req, res) => {
