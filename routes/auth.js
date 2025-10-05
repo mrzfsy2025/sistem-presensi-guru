@@ -95,14 +95,17 @@ router.post('/forgot-password', async (req, res) => {
         });
         
         res.status(200).json({ message: "Email reset password telah berhasil dikirim." });
-    } catch (error) {
-        console.error("Error saat forgot-password:", error);
-        console.error("[FORGOT-PASSWORD-ERROR]: Terjadi kesalahan pada proses forgot password.");
-        console.error("[FORGOT-PASSWORD-ERROR]: Pesan Error:", error.message);
-        console.error("[FORGOT-PASSWORD-ERROR]: Kode Error:", error.code); // Menambahkan kode error jika ada
-        console.error("[FORGOT-PASSWORD-ERROR]: Stack Trace:", error.stack); // Stack trace sangat penting untuk melacak sumber error
-        res.status(500).json({ message: "Terjadi error pada server saat mengirim email. Hubungi Admin !" });
-    }
+    } catch (err) { 
+    console.error("====================== KESALAHAN KRITIS TERDETEKSI ======================");
+    console.error("TIPE DATA ERROR:", typeof err);
+    console.error("ERROR JIKA DIUBAH KE STRING:", String(err));
+    // Cetak seluruh struktur objek error secara mendalam
+    console.error("INSPEKSI PENUH OBJEK ERROR:");
+    console.dir(err, { depth: null, colors: true });
+    console.error("========================================================================");
+
+    res.status(500).json({ message: "Terjadi error pada server saat mengirim email. Hubungi Admin !" });
+}
 });
 
 router.post('/reset-password', async (req, res) => {
