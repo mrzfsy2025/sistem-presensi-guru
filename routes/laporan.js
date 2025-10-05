@@ -5,10 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database'); 
-const { isAdmin } = require('../middleware/auth');
+// const { isAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs'); 
 const crypto = require('crypto'); 
-const { checkAuth, checkAdmin } = require('../middleware/auth.js');
+const { checkAuth, checkAdmin } = require('../middleware/auth');
 
 // =================================================================
 // FUNGSI BANTUAN: Menghitung hari kerja dalam sebulan
