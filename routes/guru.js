@@ -4,9 +4,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs'); // Modul File System untuk menghapus file
+const fs = require('fs'); 
 const db = require('../database');
-const { isGuru } = require('../middleware/auth'); // Kita gunakan middleware yang sama
+const { checkAuth } = require('../middleware/auth'); 
 const bcrypt = require('bcryptjs');
 
 const storage = multer.diskStorage({
@@ -25,7 +25,7 @@ const upload = multer({ storage: storage });
 // ENDPOINT: Mengambil profil & status presensi guru yang sedang login
 // METHOD: GET, URL: /api/guru/status
 // =================================================================
-router.get('/status', isGuru, async (req, res) => {
+router.get('/status', checkAuth, async (req, res) => {
     // ID guru didapat dari token yang sudah diverifikasi oleh middleware
     const id_guru = req.user.id_guru;
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
@@ -82,7 +82,7 @@ router.get('/status', isGuru, async (req, res) => {
 // ENDPOINT: Guru mengubah password-nya sendiri
 // METHOD: PUT, URL: /api/guru/profile/password
 // =================================================================
-router.put('/profile/password', isGuru, async (req, res) => {
+router.put('/profile/password', checkAuth, async (req, res) => {
     // Ambil ID guru dari token yang sudah terverifikasi
     const id_guru = req.user.id_guru;
     const { password_lama, password_baru, konfirmasi_password_baru } = req.body;

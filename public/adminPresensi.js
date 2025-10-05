@@ -2,13 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { isAdmin } = require('../middleware/auth');
+const {checkAuth, checkAdmin} = require('../middleware/auth');
 
 // =================================================================
 // API 1: Mengambil semua data presensi pada tanggal tertentu
 // METHOD: GET, URL: /api/admin/presensi?tanggal=2025-09-23
 // =================================================================
-router.get('/', isAdmin, async (req, res) => {
+router.get('/', [checkAuth, checkAdmin], async (req, res) => {
     const { tanggal } = req.query;
 
     if (!tanggal) {
@@ -35,7 +35,7 @@ router.get('/', isAdmin, async (req, res) => {
 // API 2: Memperbarui satu data presensi (untuk koreksi)
 // METHOD: PUT, URL: /api/admin/presensi/:id_presensi
 // =================================================================
-router.put('/:id_presensi', isAdmin, async (req, res) => {
+router.put('/:id_presensi', [checkAuth, checkAdmin], async (req, res) => {
     const { id_presensi } = req.params;
     const { jam_masuk, jam_pulang, status } = req.body;
 

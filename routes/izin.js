@@ -2,13 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { isGuru } = require('../middleware/auth'); // Menggunakan middleware yang sama
+const { checkAuth } = require('../middleware/auth'); 
 
 // =================================================================
 // API 1: Guru membuat pengajuan izin baru
 // METHOD: POST, URL: /api/izin
 // =================================================================
-router.post('/', isGuru, async (req, res) => {
+router.post('/', checkAuth, async (req, res) => {
     const id_guru = req.user.id_guru;
     const { tanggal_mulai, tanggal_selesai, jenis_izin, keterangan } = req.body;
 
@@ -35,7 +35,7 @@ router.post('/', isGuru, async (req, res) => {
 // API 2: Guru melihat riwayat pengajuannya sendiri
 // METHOD: GET, URL: /api/izin/riwayat
 // =================================================================
-router.get('/riwayat', isGuru, async (req, res) => {
+router.get('/riwayat', checkAuth, async (req, res) => {
     const id_guru = req.user.id_guru;
     try {
         const query = "SELECT * FROM izin_sakit_tugas WHERE id_guru = ? ORDER BY tanggal_mulai DESC;";

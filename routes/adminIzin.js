@@ -2,21 +2,16 @@
 // routes/adminIzin.js
 // =================================================================
 
-// Import library yang dibutuhkan
 const express = require('express');
 const router = express.Router();
-
-// Import koneksi database
 const db = require('../database'); 
-
-// Import middleware untuk otentikasi
-const { isAdmin } = require('../middleware/auth');
+const { checkAuth, checkAdmin } = require('../middleware/auth');
 
 // =================================================================
 // BAGIAN 1: READ (Melihat semua pengajuan izin)
 // METHOD: GET, ENDPOINT: /api/admin/izin
 // =================================================================
-router.get('/', isAdmin, async (req, res) => {
+router.get('/', [checkAuth, checkAdmin], async (req, res) => {
   try {
     // Query ini menggabungkan (JOIN) tabel izin dengan tabel guru
     // agar kita bisa menampilkan nama guru yang mengajukan.
@@ -45,7 +40,7 @@ router.get('/', isAdmin, async (req, res) => {
 // BAGIAN 2: UPDATE (Menyetujui atau menolak izin)
 // METHOD: PUT, ENDPOINT: /api/admin/izin/:id_izin/status
 // =================================================================
-router.put('/:id_izin/status', isAdmin, async (req, res) => {
+  router.put('/:id_izin/status', [checkAuth, checkAdmin], async (req, res) => {
   const { id_izin } = req.params;
   const { status } = req.body; // Status baru: "Disetujui" atau "Ditolak"
 
@@ -69,5 +64,4 @@ router.put('/:id_izin/status', isAdmin, async (req, res) => {
   }
 });
 
-// Jangan lupa export router-nya
 module.exports = router;

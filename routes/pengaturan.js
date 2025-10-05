@@ -2,13 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { isAdmin } = require('../middleware/auth');
+const {checkAuth, checkAdmin} = require('../middleware/auth');
 
 // =================================================================
 // API 1: Mengambil semua data pengaturan
 // METHOD: GET, URL: /api/pengaturan
 // =================================================================
-router.get('/', isAdmin, async (req, res) => {
+router.get('/', [checkAuth, checkAdmin], async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM pengaturan;");
 
@@ -29,7 +29,7 @@ router.get('/', isAdmin, async (req, res) => {
 // API 2: Memperbarui data pengaturan
 // METHOD: PUT, URL: /api/pengaturan
 // =================================================================
-router.put('/', isAdmin, async (req, res) => {
+router.put('/', [checkAuth, checkAdmin], async (req, res) => {
     const settings = req.body; // Menerima objek berisi semua pengaturan baru
 
     try {
@@ -47,8 +47,8 @@ router.put('/', isAdmin, async (req, res) => {
             }
         }
 
-        await connection.commit(); // Konfirmasi semua perubahan jika berhasil
-        connection.release(); // Lepaskan koneksi
+        await connection.commit(); 
+        connection.release(); 
 
         res.status(200).json({ message: "Pengaturan berhasil diperbarui." });
 

@@ -1,17 +1,11 @@
 // =================================================================
 // routes/adminGuru.js
 // =================================================================
-
-// Import library yang dibutuhkan
 const express = require('express');
-const bcrypt = require('bcryptjs'); // Untuk enkripsi password
+const bcrypt = require('bcryptjs'); 
 const router = express.Router();
-
-// Import koneksi database (asumsi Anda punya file ini)
 const db = require('../database'); 
-
-// Import middleware untuk otentikasi (asumsi Anda punya file ini)
-const { isAdmin } = require('../middleware/auth');
+const { checkAuth, checkAdmin } = require('../middleware/auth');
 
 // =================================================================
 // BAGIAN 1: READ (Melihat semua data guru)
@@ -79,7 +73,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: "Terjadi error pada server." });
   }
 });
-
 // =================================================================
 // BAGIAN 3: UPDATE (Memperbarui data guru)
 // METHOD: PUT, ENDPOINT: /api/admin/guru/:id_guru
@@ -136,9 +129,7 @@ router.delete('/:id_guru', async (req, res) => {
 // BAGIAN 5: RESET (Reset - Password)
 // METHOD: Reset-Password, ENDPOINT: /api/auth/forgot-password/:id_guru
 // =================================================================
-
-
-router.post('/:id_guru/reset-password', isAdmin, async (req, res) => {
+router.post('/:id_guru/reset-password', [checkAuth, checkAdmin], async (req, res) => {
     const { id_guru } = req.params;
     const { password_baru } = req.body;
 

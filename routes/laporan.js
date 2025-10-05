@@ -31,7 +31,7 @@ const getWorkingDaysInMonth = (year, month) => {
 // ENDPOINT UTAMA: Membuat Laporan Bulanan
 // METHOD: GET, ENDPOINT: /api/laporan/bulanan?bulan=9&tahun=2025
 // =================================================================
-router.get('/bulanan', isAdmin, async (req, res) => {
+router.get('/bulanan', [checkAuth, checkAdmin], async (req, res) => {
   const { bulan, tahun } = req.query;
 
   if (!bulan || !tahun) {

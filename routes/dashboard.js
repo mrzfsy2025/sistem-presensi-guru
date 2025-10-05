@@ -3,9 +3,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { isAdmin } = require('../middleware/auth');
+const { checkAuth, checkAdmin } = require('../middleware/auth');
 
-router.get('/summary', isAdmin, async (req, res) => { 
+router.get('/summary', [checkAuth, checkAdmin], async (req, res) => { 
     try {
         const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
 console.log(`Mencari data untuk tanggal: ${tanggal_hari_ini}`); // Log Tanggal

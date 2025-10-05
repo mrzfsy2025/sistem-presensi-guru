@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { isGuru } = require('../middleware/auth');
+const { checkAuth } = require('../middleware/auth');
 
 // Fungsi bantuan (bisa disalin dari file lain jika sudah ada)
 let PENGATURAN = {};
@@ -29,7 +29,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 // --- ENDPOINT PRESENSI MASUK ---
-router.post('/masuk', isGuru, async (req, res) => {
+router.post('/masuk', checkAuth, async (req, res) => {
     const id_guru = req.user.id_guru;
     const { latitude, longitude, foto_masuk } = req.body;
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
@@ -53,7 +53,7 @@ router.post('/masuk', isGuru, async (req, res) => {
 });
 
 // --- ENDPOINT PRESENSI PULANG ---
-router.post('/pulang', isGuru, async (req, res) => {
+router.post('/pulang', checkAuth, async (req, res) => {
     const id_guru = req.user.id_guru;
     const { latitude, longitude, foto_pulang } = req.body;
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
@@ -72,7 +72,7 @@ router.post('/pulang', isGuru, async (req, res) => {
 });
 
 // --- ENDPOINT RIWAYAT PRESENSI (YANG ERROR) ---
-router.get('/riwayat', isGuru, async (req, res) => {
+router.get('/riwayat', checkAuth, async (req, res) => {
     const id_guru = req.user.id_guru;
     const { bulan, tahun } = req.query;
     if (!bulan || !tahun) return res.status(400).json({ message: "Parameter bulan dan tahun wajib diisi." });
