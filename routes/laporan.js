@@ -8,6 +8,7 @@ const db = require('../database');
 const { isAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs'); 
 const crypto = require('crypto'); 
+const { checkAuth, checkAdmin } = require('../middleware/auth.js');
 
 // =================================================================
 // FUNGSI BANTUAN: Menghitung hari kerja dalam sebulan
@@ -104,7 +105,7 @@ function generateRandomPassword() {
     return crypto.randomBytes(4).toString('hex'); // Menghasilkan 8 karakter acak
 }
 // Mengambil kredensial awal guru
-router.get('/akun-awal-guru', isAdmin, async (req, res) => {
+router.get('/akun-awal-guru', [checkAuth, checkAdmin], async (req, res) => {
     try {
         // 1. Ambil semua guru selain admin
         const querySelect = "SELECT id_guru, nama_lengkap, email FROM guru WHERE role != 'Admin';";
@@ -138,7 +139,7 @@ router.get('/akun-awal-guru', isAdmin, async (req, res) => {
         // 6. Kirim daftar kredensial ke frontend
         res.status(200).json(credentials);
 
-    } catch (error) {
+} catch (error) {
         console.error("Error saat generate kredensial awal:", error);
         res.status(500).json({ message: "Terjadi error pada server." });
     }
