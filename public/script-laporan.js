@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const bulan = filterBulan.value;
         const tahun = filterTahun.value;
         const namaBulanTerpilih = filterBulan.options[filterBulan.selectedIndex].text;
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
 
         judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
         tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data...</td></tr>`;

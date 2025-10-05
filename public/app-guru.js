@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     // BAGIAN 1: DEKLARASI VARIABEL & REFERENSI ELEMEN
     // =================================================================
-    const token = localStorage.getItem('guru_token');
+    const token = localStorage.getItem('token');
 
     // Elemen Profil Utama
     const namaGuruElem = document.getElementById('nama-guru');
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tabIzin.addEventListener('click', () => tampilkanView('izin'));
         tabProfil.addEventListener('click', () => tampilkanView('profil'));
         tabLogout.addEventListener('click', () => {
-            localStorage.removeItem('guru_token');
+            localStorage.removeItem('token');
             window.location.href = 'index.html';
         });
 

@@ -143,7 +143,7 @@
 
         // Fungsi untuk logout
         function logout() {
-            localStorage.removeItem('admin_token');
+            localStorage.removeItem('token');
             window.location.href = 'index.html';
         }
         document.getElementById('tombol-exit').addEventListener('click', logout);
@@ -161,7 +161,7 @@
 
         // Fungsi utama untuk mengambil dan menampilkan semua data dasbor
         async function muatDataDasbor() {
-            const token = localStorage.getItem('admin_token');
+            const token = localStorage.getItem('token');
             try {
                 const response = await fetch('/api/dashboard/summary', {
                     headers: {
@@ -273,7 +273,7 @@
         // Panggil fungsi-fungsi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
         // Ambil token dari penyimpanan
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
 
         // 1. Cek dulu, apakah tokennya ada?
         if (!token) {
@@ -290,7 +290,7 @@
     // Muat ulang data setiap kali pengguna kembali ke tab/jendela ini
     window.addEventListener('focus', function() {
         console.log("Tab dasbor kembali aktif, memuat ulang data...");
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         if (token) {
             muatDataDasbor(token); // Panggil fungsi muat data lagi
         }

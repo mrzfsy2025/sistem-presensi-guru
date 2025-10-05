@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function muatDataIzin() {
     const tabelBody = document.getElementById('tabel-izin-body');
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('token');
 
     try {
         const response = await fetch('/api/admin/izin', {
@@ -73,7 +73,7 @@ async function updateStatusIzin(id, status) {
     }
 
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/admin/izin/${id}/status`, {
             method: 'PUT',
             headers: {

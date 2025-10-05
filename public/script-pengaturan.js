@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputLon = document.getElementById('school_lon');
     const inputRadius = document.getElementById('radius_meter');
     const inputBatasJam = document.getElementById('batas_jam_masuk');
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('token');
 
     // =================================================================
     // BAGIAN A: Mengambil dan Menampilkan Pengaturan Saat Ini

@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function muatDataGuru() {
     const tabelBody = document.getElementById('tabel-guru-body');
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('token');
 
     try {
         const response = await fetch('/api/admin/guru', {
@@ -63,7 +63,7 @@ async function muatDataGuru() {
 async function hapusGuru(id) {
     if (!confirm(`Apakah Anda yakin ingin menonaktifkan guru dengan ID ${id}?`)) return;
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/admin/guru/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + token }
@@ -82,7 +82,7 @@ async function hapusGuru(id) {
 // =================================================================
 async function bukaFormEdit(id) {
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/admin/guru/${id}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -111,7 +111,7 @@ document.getElementById('form-edit-guru').addEventListener('submit', async funct
         email: document.getElementById('edit-email').value,
     };
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/admin/guru/${id}`, {
             method: 'PUT',
             headers: {
@@ -148,7 +148,7 @@ document.getElementById('form-tambah-guru').addEventListener('submit', async fun
         password: document.getElementById('tambah-password').value
     };
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch('/api/admin/guru', {
             method: 'POST',
             headers: {
@@ -192,7 +192,7 @@ document.getElementById('form-reset-password').addEventListener('submit', async 
     if (!confirm(`Anda yakin ingin mereset password untuk guru ini?`)) return;
 
     try {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/admin/guru/${id}/reset-password`, {
             method: 'POST',
             headers: { 
