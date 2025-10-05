@@ -1,42 +1,36 @@
 // File: /ABSENSI/middleware/auth.js (DISEMPURNAKAN)
-
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-
 const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-default';
 
-const verifyToken = (req, res, next) => {
+// Middleware checkAuth (Otentikasi)
+const checkAuth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Akses ditolak. Token tidak disediakan.' });
-    }
-    const token = authHeader.split(' ')[1];
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded; // data user (termasuk id_guru) ke request
-        next();
-    } catch (error) {
-        return res.status(403).json({ message: 'Token tidak valid.' });
-    }
-};
+    const token = authHeader && authHeader.split(' ')[1];
 
-const isAdmin = (req, res, next) => {
-    // verifikasi tokennya
-    verifyToken(req, res, () => {
-        // token valid, periksa rolenya
-        if (req.user && req.user.role === 'Admin') {
-            next(); // Lanjutkan jika Admin
-        } else {
-            // Tolak jika bukan Admin
-            res.status(403).json({ message: 'Akses ditolak. Hanya untuk Admin.' });
+    if (token == null) {
+        return res.status(401).json({ message: 'Akses ditolak. Token tidak ditemukan.' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Token tidak valid.' });
         }
+        req.user = user;
+        next();
     });
 };
-const isGuru = verifyToken;
 
-// Export semua fungsi agar bisa dipakai di file lain
+// Middleware SETELAH checkAuth
+const checkAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'Admin') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Akses ditolak. Rute ini khusus untuk Admin.' });
+    }
+};
+
+// Ekspor kedua fungsi tersebut
 module.exports = {
-    isAdmin,
-    isGuru,
-    verifyToken
+    checkAuth,
+    checkAdmin
 };
