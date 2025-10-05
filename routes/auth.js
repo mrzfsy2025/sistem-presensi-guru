@@ -5,14 +5,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database'); 
 const router = express.Router();
-const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const app = express();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-default';
 
-app.use(bodyParser.json());router.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
