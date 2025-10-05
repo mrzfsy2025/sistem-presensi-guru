@@ -81,8 +81,93 @@
             </div>
         </div>
     </div>
+    <div class="container mx-auto p-4 mt-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">Buat Kredensial Awal Guru</h2>
+        <p class="text-gray-600 mb-2">
+            Klik tombol di bawah untuk membuat ulang password sementara bagi semua guru.
+        </p>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+            <p class="font-bold">Perhatian!</p>
+            <p>Aksi ini akan me-reset password semua akun guru. Gunakan hanya untuk distribusi kredensial awal atau jika ada reset massal.</p>
+        </div>
 
+        <button id="getGuruDataBtn" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none transition duration-150 ease-in-out">
+            Buat & Tampilkan Kredensial Awal
+        </button>
+
+        <div id="hasilDataGuru" class="mt-6 p-4 bg-gray-50 border rounded-md hidden">
+            <h3 class="font-bold text-red-600 mb-2">PENTING: Data ini rahasia. Segera salin dan distribusikan.</h3>
+            <pre id="dataOutput" class="whitespace-pre-wrap text-sm"></pre>
+        </div>
+         <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden"></div>
+    </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script-laporan.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const getGuruDataBtn = document.getElementById('getGuruDataBtn');
+            const hasilDataGuruDiv = document.getElementById('hasilDataGuru');
+            const dataOutputPre = document.getElementById('dataOutput');
+            const errorMessageDiv = document.getElementById('errorMessage');
+
+            if (getGuruDataBtn) {
+                getGuruDataBtn.addEventListener('click', async () => {
+                    // Ambil token JWT dari localStorage
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        errorMessageDiv.textContent = 'Akses ditolak. Silakan login ulang sebagai Admin.';
+                        errorMessageDiv.classList.remove('d-none');
+                        return;
+                    }
+
+                    // Reset tampilan
+                    getGuruDataBtn.disabled = true;
+                    getGuruDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memuat...';
+                    hasilDataGuruDiv.classList.add('d-none');
+                    errorMessageDiv.classList.add('d-none');
+
+                    try {
+                        const response = await fetch('/api/laporan/akun-awal-guru', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || `Error: Gagal mengambil data.`);
+                        }
+
+                        const credentials = await response.json();
+
+                        if (credentials.length === 0) {
+                            dataOutputPre.textContent = 'Tidak ada data guru yang ditemukan untuk di-reset.';
+                        } else {
+                            let formattedText = 'Daftar Kredensial Awal Guru (Siap untuk di-copy):\n\n';
+                            credentials.forEach(guru => {
+                                formattedText += `Nama    : ${guru.nama_lengkap}\n`;
+                                formattedText += `Email   : ${guru.email}\n`;
+                                formattedText += `Password: ${guru.password_awal}\n`;
+                                formattedText += `-------------------------------------------------\n`;
+                            });
+                            dataOutputPre.textContent = formattedText;
+                        }
+                        
+                        hasilDataGuruDiv.classList.remove('d-none');
+
+                    } catch (error) {
+                        errorMessageDiv.textContent = `Gagal memuat data: ${error.message}`;
+                        errorMessageDiv.classList.remove('d-none');
+                    } finally {
+                        getGuruDataBtn.disabled = false;
+                        getGuruDataBtn.innerHTML = '<i class="bi bi-shield-lock-fill me-2"></i>Buat & Tampilkan Kredensial Awal';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

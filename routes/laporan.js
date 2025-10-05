@@ -6,6 +6,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database'); 
 const { isAdmin } = require('../middleware/auth');
+const bcrypt = require('bcryptjs'); 
+const crypto = require('crypto'); 
 
 // =================================================================
 // FUNGSI BANTUAN: Menghitung hari kerja dalam sebulan
@@ -95,6 +97,52 @@ router.get('/bulanan', isAdmin, async (req, res) => {
     console.error("Error saat membuat laporan:", error);
     res.status(500).json({ message: "Terjadi error pada server." });
   }
+});
+
+// Fungsi untuk membuat password acak
+function generateRandomPassword() {
+    return crypto.randomBytes(4).toString('hex'); // Menghasilkan 8 karakter acak
+}
+
+// Endpoint untuk generate dan mengambil kredensial awal guru
+router.get('/akun-awal-guru', authMiddleware, async (req, res) => {
+    try {
+        // 1. Ambil semua guru selain admin
+        const querySelect = "SELECT id_guru, nama_lengkap, email FROM guru WHERE role != 'Admin';";
+        const [guruList] = await db.query(querySelect);
+
+        if (guruList.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const credentials = []; // Untuk menampung hasil akhir
+
+        // 2. Loop untuk setiap guru
+        for (const guru of guruList) {
+            // 3. Buat password acak baru
+            const newPassword = generateRandomPassword();
+            const salt = await bcrypt.genSalt(10);
+            const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+            // 4. Update password di database dengan hash yang baru
+            const queryUpdate = "UPDATE guru SET password_hash = ? WHERE id_guru = ?;";
+            await db.query(queryUpdate, [newPasswordHash, guru.id_guru]);
+
+            // 5. Simpan kredensial teks asli untuk ditampilkan ke Admin
+            credentials.push({
+                nama_lengkap: guru.nama_lengkap,
+                email: guru.email,
+                password_awal: newPassword
+            });
+        }
+
+        // 6. Kirim daftar kredensial ke frontend
+        res.status(200).json(credentials);
+
+    } catch (error) {
+        console.error("Error saat generate kredensial awal:", error);
+        res.status(500).json({ message: "Terjadi error pada server." });
+    }
 });
 
 module.exports = router;
