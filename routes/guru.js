@@ -126,4 +126,57 @@ router.put('/profile/password', checkAuth, async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
+router.put('/update-email', checkAuth, async (req, res) => {
+    // 1. Ambil data dari request body dan user ID dari token
+    const { new_email, current_password } = req.body;
+    const id_guru = req.user.id_guru;
+
+    // 2. Validasi input
+    if (!new_email || !current_password) {
+        return res.status(400).json({ message: 'Email baru dan password saat ini wajib diisi.' });
+    }
+
+    try {
+        // 3. Periksa apakah email baru sudah digunakan oleh orang lain
+        let query = "SELECT id_guru FROM guru WHERE email = ? AND id_guru != ?;";
+        let [existingUser] = await db.query(query, [new_email, id_guru]);
+
+        if (existingUser.length > 0) {
+            return res.status(409).json({ message: 'Email ini sudah terdaftar. Silakan gunakan email lain.' });
+        }
+
+        // 4. Verifikasi password saat ini
+        query = "SELECT password_hash, role, nama_lengkap FROM guru WHERE id_guru = ?;";
+        const [rows] = await db.query(query, [id_guru]);
+        const guru = rows[0];
+
+        const isPasswordMatch = await bcrypt.compare(current_password, guru.password_hash);
+        if (!isPasswordMatch) {
+            return res.status(401).json({ message: 'Password yang Anda masukkan salah.' });
+        }
+
+        // 5. Jika semua valid, update email di database
+        query = "UPDATE guru SET email = ? WHERE id_guru = ?;";
+        await db.query(query, [new_email, id_guru]);
+
+        // 6. Buat token baru dengan email yang sudah diupdate
+        const payload = {
+            id_guru: id_guru,
+            email: new_email, // Gunakan email baru di token baru
+            role: guru.role,
+            nama: guru.nama_lengkap
+        };
+        const newToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
+
+        // 7. Kirim respons sukses beserta token baru
+        res.status(200).json({ 
+            message: 'Email berhasil diperbarui.',
+            token: newToken // Kirim token baru agar frontend bisa memperbarui localStorage
+        });
+
+    } catch (error) {
+        console.error("Error saat mengubah email:", error);
+        res.status(500).json({ message: "Terjadi error pada server." });
+    }
+});
 module.exports = router;

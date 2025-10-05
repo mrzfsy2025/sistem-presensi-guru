@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Referensi Elemen Izin & Profil
     const formIzin = document.getElementById('form-izin');
     const formUbahPassword = document.getElementById('form-ubah-password');
+    const formUbahEmail = document.getElementById('form-ubah-email');
 
     const cameraModal = new bootstrap.Modal(document.getElementById('cameraModal'));
     const videoElem = document.getElementById('camera-preview');
@@ -136,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tombolPresensi.addEventListener('click', lakukanPresensi);
         formIzin.addEventListener('submit', kirimFormIzin);
         formUbahPassword.addEventListener('submit', kirimFormUbahPassword);
+        formUbahEmail.addEventListener('submit', kirimFormUbahEmail);
         filterBulanRiwayat.addEventListener('change', muatDataRiwayat);
         filterTahunRiwayat.addEventListener('change', muatDataRiwayat);
     }
@@ -238,7 +240,54 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`Error: ${error.message}`);
         }
     }
+// Fungsi untuk Ubah Email (BARU)
+    async function kirimFormUbahEmail(event) {
+        event.preventDefault();
 
+        const changeEmailBtn = document.getElementById('change-email-btn');
+        const emailSuccessMessage = document.getElementById('email-success-message');
+        const emailErrorMessage = document.getElementById('email-error-message');
+        
+        // Reset notifikasi
+        emailSuccessMessage.classList.add('d-none');
+        emailErrorMessage.classList.add('d-none');
+        changeEmailBtn.disabled = true;
+        changeEmailBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+
+        const dataUbahEmail = {
+            new_email: document.getElementById('new-email').value,
+            current_password: document.getElementById('current-password-for-email').value
+        };
+
+        try {
+            const response = await fetch('/api/guru/update-email', {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(dataUbahEmail)
+            });
+
+            const hasil = await response.json();
+            if (!response.ok) throw new Error(hasil.message);
+
+            // PENTING: Perbarui token di localStorage dengan yang baru dari server
+            localStorage.setItem('token', hasil.token);
+
+            // Tampilkan pesan sukses dan reset form
+            emailSuccessMessage.textContent = hasil.message + ' Token login Anda telah diperbarui.';
+            emailSuccessMessage.classList.remove('d-none');
+            this.reset();
+
+        } catch(error) {
+            emailErrorMessage.textContent = `Error: ${error.message}`;
+            emailErrorMessage.classList.remove('d-none');
+        } finally {
+            changeEmailBtn.disabled = false;
+            changeEmailBtn.innerHTML = 'Simpan Perubahan Email';
+        }
+    }
     // Fungsi untuk Ubah Password
     async function kirimFormUbahPassword(event) {
         event.preventDefault();
@@ -327,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit',
             second: '2-digit'
         });
-    }
- 
+    };
     init();
 });

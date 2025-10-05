@@ -116,9 +116,34 @@
                         </form>
                     </div>
                 </div>
-            </div>
+                <div class="card shadow-sm">
+                </div>
+            </div> <div class="card shadow-sm mt-3">
+                <div class="card-header bg-dark text-white">Ubah Alamat Email</div>
+                <div class="card-body">
+                    <form id="form-ubah-email">
+                        <div class="mb-3">
+                            <label for="new-email" class="form-label">Email Baru</label>
+                            <input type="email" class="form-control" id="new-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="current-password-for-email" class="form-label">Masukkan Password Anda Saat Ini</label>
+                            <input type="password" class="form-control" id="current-password-for-email" required>
+                            <div class="form-text">Untuk alasan keamanan, kami perlu memverifikasi identitas Anda.</div>
+                        </div>
+                        
+                        <div id="email-success-message" class="alert alert-success d-none" role="alert"></div>
+                        <div id="email-error-message" class="alert alert-danger d-none" role="alert"></div>
             
-        </div> </div> <nav class="navbar fixed-bottom bg-white shadow-lg">
+                        <button type="submit" id="change-email-btn" class="btn btn-primary w-100">
+                            Simpan Perubahan Email
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div> 
+    </div>
+        <nav class="navbar fixed-bottom bg-white shadow-lg">
         <div class="container-fluid">
             <ul class="nav nav-fill w-100">
                 <li class="nav-item"><a id="tab-home" class="nav-link active" href="#"><i class="bi bi-house-door-fill d-block fs-4"></i><small>Home</small></a></li>
