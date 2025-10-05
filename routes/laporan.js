@@ -103,9 +103,8 @@ router.get('/bulanan', isAdmin, async (req, res) => {
 function generateRandomPassword() {
     return crypto.randomBytes(4).toString('hex'); // Menghasilkan 8 karakter acak
 }
-
-// Endpoint untuk generate dan mengambil kredensial awal guru
-router.get('/akun-awal-guru', authMiddleware, async (req, res) => {
+// Mengambil kredensial awal guru
+router.get('/akun-awal-guru', isAdmin, async (req, res) => {
     try {
         // 1. Ambil semua guru selain admin
         const querySelect = "SELECT id_guru, nama_lengkap, email FROM guru WHERE role != 'Admin';";
