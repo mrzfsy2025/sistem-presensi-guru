@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
         // Jika email tidak ditemukan
         if (rows.length === 0) {
             return res.status(401).json({ message: 'Email atau password salah.' });
-        }
+        };
         const guru = rows[0];
 
         // 2. Bandingkan password yang diinput dengan yang ada di database
@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
         // Jika password tidak cocok
         if (!isPasswordMatch) {
             return res.status(401).json({ message: 'Email atau password salah.' });
-        }
+        };
 
         // 3. Jika cocok, buatkan JWT Token
         const payload = {
@@ -65,7 +65,7 @@ router.post('/forgot-password', async (req, res) => {
         const [rows] = await db.query("SELECT * FROM guru WHERE email = ?;", [email]);
         if (rows.length === 0) {
             return res.status(200).json({ message: "Jika email Anda terdaftar, Anda akan menerima link reset password." });
-        }
+        };
         const guru = rows[0];
 
         const resetToken = crypto.randomBytes(32).toString('hex');
@@ -120,7 +120,7 @@ router.post('/reset-password', async (req, res) => {
         );
         if (rows.length === 0) {
             return res.status(400).json({ message: "Token reset password tidak valid atau sudah kadaluarsa." });
-        }
+        };
         const guru = rows[0];
 
         const salt = await bcrypt.genSalt(10);
@@ -137,5 +137,4 @@ router.post('/reset-password', async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
-
 module.exports = router;
