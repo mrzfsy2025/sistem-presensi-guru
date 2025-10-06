@@ -1,51 +1,28 @@
 // =================================================================
-// routes/presensi.js (VERSI PERBAIKAN)
+// routes/presensi.js
 // =================================================================
 
+// File: /routes/presensi.js
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { checkAuth } = require('../middleware/auth');
 
-// --- PERUBAHAN DIMULAI DI SINI ---
-
-// 1. Membuat Middleware untuk memuat pengaturan
-// Middleware ini akan berjalan setiap kali ada request ke endpoint presensi.
-const loadPengaturanMiddleware = async (req, res, next) => {
+// Fungsi bantuan (bisa disalin dari file lain jika sudah ada)
+let PENGATURAN = {};
+async function loadPengaturan() {
     try {
         const [rows] = await db.query("SELECT * FROM pengaturan;");
-        // Konversi hasil query array menjadi objek, sekaligus mengubah tipe data
-        const settings = rows.reduce((obj, item) => {
-            let value = item.setting_value;
-            // Konversi nilai yang seharusnya angka menjadi tipe data number
-            if (item.setting_key === 'school_lat' || item.setting_key === 'school_lon') {
-                value = parseFloat(value);
-            } else if (item.setting_key === 'radius_meter') {
-                value = parseInt(value, 10);
-            }
-            obj[item.setting_key] = value;
-            return obj;
-        }, {});
-        
-        // Simpan pengaturan ke dalam objek request agar bisa diakses di endpoint
-        req.pengaturan = settings; 
-        next(); // Lanjutkan ke proses selanjutnya (endpoint)
+        PENGATURAN = rows.reduce((obj, item) => ({...obj, [item.setting_key]: item.setting_value }), {});
     } catch (error) {
-        console.error("Gagal memuat pengaturan:", error);
-        // Jika gagal, kirim response error dan jangan lanjutkan
-        res.status(500).json({ message: "Server tidak dapat memuat konfigurasi pengaturan." });
+        console.error("Gagal memuat pengaturan, menggunakan nilai default:", error);
+        PENGATURAN = { school_lat: -3.7885, school_lon: 102.2600, radius_meter: 100, batas_jam_masuk: "07:30:00" };
     }
-};
-
-// Hilangkan PENGATURAN global dan pemanggilan loadPengaturan() di awal.
-// router.use() akan menerapkan middleware ini ke semua rute di file ini.
-router.use(loadPengaturanMiddleware);
-
-// --- AKHIR PERUBAHAN ---
-
+}
+loadPengaturan();
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371e3; // Radius bumi dalam meter
+    const R = 6371e3;
     const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180, Δφ = (lat2-lat1) * Math.PI/180, Δλ = (lon2-lon1) * Math.PI/180;
     const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
@@ -53,9 +30,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 // --- ENDPOINT PRESENSI MASUK ---
 router.post('/masuk', checkAuth, async (req, res) => {
-    // Ambil pengaturan dari objek request yang sudah disiapkan middleware
-    const { school_lat, school_lon, radius_meter, batas_jam_masuk } = req.pengaturan;
-    
     const id_guru = req.user.id_guru;
     const { latitude, longitude, foto_masuk } = req.body;
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
@@ -65,18 +39,10 @@ router.post('/masuk', checkAuth, async (req, res) => {
         const [existing] = await db.query("SELECT * FROM presensi WHERE id_guru = ? AND tanggal = ?;", [id_guru, tanggal_hari_ini]);
         if (existing.length > 0) return res.status(409).json({ message: "Anda sudah melakukan presensi masuk hari ini." });
         
-        // Pastikan semua nilai untuk kalkulasi jarak tersedia
-        if (typeof latitude === 'undefined' || typeof longitude === 'undefined' || typeof school_lat === 'undefined' || typeof school_lon === 'undefined') {
-            return res.status(400).json({ message: "Data lokasi tidak lengkap untuk perhitungan jarak." });
-        }
+        const jarak = calculateDistance(latitude, longitude, PENGATURAN.school_lat, PENGATURAN.school_lon);
+        if (jarak > PENGATURAN.radius_meter) return res.status(403).json({ message: `Lokasi Anda terlalu jauh dari sekolah (${Math.round(jarak)} meter).` });
 
-        const jarak = calculateDistance(latitude, longitude, school_lat, school_lon);
-        
-        if (jarak > radius_meter) {
-            return res.status(403).json({ message: `Lokasi Anda terlalu jauh dari sekolah (${Math.round(jarak)} meter). Radius yang diizinkan: ${radius_meter} meter.` });
-        }
-
-        const status = jam_sekarang > batas_jam_masuk ? 'Terlambat' : 'Tepat Waktu';
+        const status = jam_sekarang > PENGATURAN.batas_jam_masuk ? 'Terlambat' : 'Tepat Waktu';
         
         await db.query("INSERT INTO presensi (id_guru, tanggal, jam_masuk, foto_masuk, status) VALUES (?, ?, ?, ?, ?);", [id_guru, tanggal_hari_ini, jam_sekarang, foto_masuk, status]);
         res.status(201).json({ message: `Presensi masuk berhasil pada jam ${jam_sekarang}. Status: ${status}.` });
@@ -88,9 +54,8 @@ router.post('/masuk', checkAuth, async (req, res) => {
 
 // --- ENDPOINT PRESENSI PULANG ---
 router.post('/pulang', checkAuth, async (req, res) => {
-    // Endpoint ini tidak memerlukan data pengaturan, jadi tidak ada perubahan
     const id_guru = req.user.id_guru;
-    const { foto_pulang } = req.body; // latitude dan longitude tidak digunakan di sini
+    const { latitude, longitude, foto_pulang } = req.body;
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
     const jam_sekarang = new Date().toLocaleTimeString('en-GB');
     try {
@@ -106,9 +71,8 @@ router.post('/pulang', checkAuth, async (req, res) => {
     }
 });
 
-// --- ENDPOINT RIWAYAT PRESENSI ---
+// --- ENDPOINT RIWAYAT PRESENSI (YANG ERROR) ---
 router.get('/riwayat', checkAuth, async (req, res) => {
-    // Endpoint ini tidak memerlukan data pengaturan, jadi tidak ada perubahan
     const id_guru = req.user.id_guru;
     const { bulan, tahun } = req.query;
     if (!bulan || !tahun) return res.status(400).json({ message: "Parameter bulan dan tahun wajib diisi." });
