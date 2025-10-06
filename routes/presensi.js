@@ -7,9 +7,7 @@ const router = express.Router();
 const db = require('../database');
 const { checkAuth } = require('../middleware/auth');
 
-// --- PERUBAHAN DIMULAI DI SINI ---
-
-// 1. Membuat Middleware untuk memuat pengaturan
+// 1. Membuat Middleware untuk pengaturan
 // Middleware ini akan berjalan setiap kali ada request ke endpoint presensi.
 const loadPengaturanMiddleware = async (req, res, next) => {
     try {
@@ -37,12 +35,8 @@ const loadPengaturanMiddleware = async (req, res, next) => {
     }
 };
 
-// Hilangkan PENGATURAN global dan pemanggilan loadPengaturan() di awal.
 // router.use() akan menerapkan middleware ini ke semua rute di file ini.
 router.use(loadPengaturanMiddleware);
-
-// --- AKHIR PERUBAHAN ---
-
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371e3; // Radius bumi dalam meter
@@ -58,14 +52,12 @@ router.post('/masuk', checkAuth, async (req, res) => {
     
     const id_guru = req.user.id_guru;
     const { latitude, longitude, foto_masuk } = req.body;
-    const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
-    const jam_sekarang = new Date().toLocaleTimeString('en-GB');
-
+    
     try {
+        const tanggal_hari_ini = new Date().toISOString().slice(0, 10);
         const [existing] = await db.query("SELECT * FROM presensi WHERE id_guru = ? AND tanggal = ?;", [id_guru, tanggal_hari_ini]);
         if (existing.length > 0) return res.status(409).json({ message: "Anda sudah melakukan presensi masuk hari ini." });
         
-        // Pastikan semua nilai untuk kalkulasi jarak tersedia
         if (typeof latitude === 'undefined' || typeof longitude === 'undefined' || typeof school_lat === 'undefined' || typeof school_lon === 'undefined') {
             return res.status(400).json({ message: "Data lokasi tidak lengkap untuk perhitungan jarak." });
         }
@@ -76,10 +68,25 @@ router.post('/masuk', checkAuth, async (req, res) => {
             return res.status(403).json({ message: `Lokasi Anda terlalu jauh dari sekolah (${Math.round(jarak)} meter). Radius yang diizinkan: ${radius_meter} meter.` });
         }
 
-        const status = jam_sekarang > batas_jam_masuk ? 'Terlambat' : 'Tepat Waktu';
+        // ===================================================================
+        // LOGIKA PENENTUAN STATUS TEPAT WAKTU / TERLAMBAT (DIPERBAIKI)
+        // ===================================================================
+        const waktuSekarang = new Date(); // Objek Date lengkap untuk waktu saat ini
+        const jam_sekarang_string = waktuSekarang.toLocaleTimeString('en-GB'); // String untuk disimpan ke DB
+
+        // Siapkan objek Date untuk batas waktu masuk pada hari ini
+        const hariIni = waktuSekarang.toISOString().slice(0, 10);
+        const waktuBatasMasuk = new Date(`${hariIni}T${batas_jam_masuk}`);
+
+        // Lakukan perbandingan menggunakan objek Date yang akurat
+        const status = waktuSekarang > waktuBatasMasuk ? 'Terlambat' : 'Tepat Waktu';
+        // ===================================================================
         
-        await db.query("INSERT INTO presensi (id_guru, tanggal, jam_masuk, foto_masuk, status) VALUES (?, ?, ?, ?, ?);", [id_guru, tanggal_hari_ini, jam_sekarang, foto_masuk, status]);
-        res.status(201).json({ message: `Presensi masuk berhasil pada jam ${jam_sekarang}. Status: ${status}.` });
+        // Simpan jam dalam format string, namun status sudah benar
+        await db.query("INSERT INTO presensi (id_guru, tanggal, jam_masuk, foto_masuk, status) VALUES (?, ?, ?, ?, ?);", [id_guru, tanggal_hari_ini, jam_sekarang_string, foto_masuk, status]);
+        
+        res.status(201).json({ message: `Presensi masuk berhasil pada jam ${jam_sekarang_string}. Status: ${status}.` });
+
     } catch (error) {
         console.error("Error saat presensi masuk:", error);
         res.status(500).json({ message: "Terjadi error pada server." });
@@ -88,7 +95,6 @@ router.post('/masuk', checkAuth, async (req, res) => {
 
 // --- ENDPOINT PRESENSI PULANG ---
 router.post('/pulang', checkAuth, async (req, res) => {
-    // Endpoint ini tidak memerlukan data pengaturan, jadi tidak ada perubahan
     const id_guru = req.user.id_guru;
     const { foto_pulang } = req.body; // latitude dan longitude tidak digunakan di sini
     const tanggal_hari_ini = new Date().toISOString().slice(0, 10);

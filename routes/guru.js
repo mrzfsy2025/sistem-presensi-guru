@@ -8,18 +8,71 @@ const fs = require('fs');
 const db = require('../database');
 const { checkAuth } = require('../middleware/auth'); 
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken'); 
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // Pastikan folder ini ada di proyek Anda
-        cb(null, 'public/uploads/'); 
-    },
-    filename: function (req, file, cb) {
-        // Buat nama file yang unik untuk menghindari duplikasi
-        cb(null, 'guru-' + Date.now() + path.extname(file.originalname));
-    }
+  destination: (req, file, cb) => cb(null, 'public/uploads/'),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 const upload = multer({ storage: storage });
+
+// Di sisi server (misalnya, di file routes/guru.js)
+
+router.get('/profil', checkAuth, async (req, res) => {
+    // ID guru didapat dari token yang sudah diverifikasi oleh middleware checkAuth
+    const id_guru = req.user.id_guru;
+
+    try {
+        const query = `
+            SELECT id_guru, nama_lengkap, nip_nipppk, jabatan, status, foto_profil 
+            FROM guru 
+            WHERE id_guru = ?;
+        `;
+        const [rows] = await db.query(query, [id_guru]);
+
+        // Cek apakah guru dengan ID tersebut ditemukan
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Data guru tidak ditemukan." });
+        }
+
+        // Jika ditemukan, kirim datanya sebagai respons JSON
+        res.status(200).json(rows[0]);
+
+    } catch (error) {
+        console.error("Error saat mengambil data profil guru:", error);
+        res.status(500).json({ message: "Terjadi error pada server." });
+    }
+});
+
+// --- ENDPOINT UNTUK UPLOAD FOTO PROFIL ---
+// Middleware 'upload.single('fotoProfil')' untuk memproses satu file dari form field 'Foto_profile'
+router.post('/profil/foto', checkAuth, upload.single('fotoProfil'), async (req, res) => {
+  const id_guru = req.user.id_guru;
+
+  // Cek apakah file berhasil di-upload oleh multer
+  if (!req.file) {
+    return res.status(400).json({ message: "Tidak ada file yang di-upload." });
+  }
+  const filePath = req.file.path.replace('public/', ''); 
+
+  try {
+    await db.query(
+      "UPDATE guru SET foto_profil = ? WHERE id_guru = ?;",
+      [filePath, id_guru]
+    );
+
+    res.status(200).json({ 
+      message: "Foto profil berhasil diperbarui.",
+      filePath: filePath // Kirim balik path file agar frontend bisa langsung menampilkannya
+    });
+  } catch (error) {
+    console.error("Error saat update foto profil:", error);
+    res.status(500).json({ message: "Terjadi error pada server." });
+  }
+});
 
 // =================================================================
 // ENDPOINT: Mengambil profil & status presensi guru yang sedang login
@@ -179,4 +232,5 @@ router.put('/update-email', checkAuth, async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
+
 module.exports = router;

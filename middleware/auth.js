@@ -20,7 +20,7 @@ const checkAuth = (req, res, next) => {
     });
 };
 
-// Middleware SETELAH checkAuth
+// Middleware checkAdmin setelah checkAuth
 const checkAdmin = (req, res, next) => {
     if (req.user && req.user.role === 'Admin') {
         next();

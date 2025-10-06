@@ -96,57 +96,14 @@
                 </div>
             </div>
         </div>    
-            <div id="view-profil" class="d-none">
-                <div class="card shadow-sm mb-3">
-                    <div class="card-header bg-dark text-white">Detail Profil</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Nama:</strong> <span id="profil-nama"></span></li>
-                        <li class="list-group-item"><strong>NIP/NIPPPK:</strong> <span id="profil-nip"></span></li>
-                        <li class="list-group-item"><strong>Email:</strong> <span id="profil-email"></span></li>
-                    </ul>
-                </div>
-                <div class="card shadow-sm mt-3">
-                <div class="card-header bg-dark text-white">Ubah Alamat Email</div>
-                <div class="card-body">
-                    <form id="form-ubah-email">
-                        <div class="mb-3">
-                            <label for="new-email" class="form-label">Email Baru</label>
-                            <input type="email" class="form-control" id="new-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="current-password-for-email" class="form-label">Masukkan Password Anda Saat Ini</label>
-                            <input type="password" class="form-control" id="current-password-for-email" required>
-                            <div class="form-text">Untuk alasan keamanan, kami perlu memverifikasi identitas Anda.</div>
-                        </div>
-                        
-                        <div id="email-success-message" class="alert alert-success d-none" role="alert"></div>
-                        <div id="email-error-message" class="alert alert-danger d-none" role="alert"></div>
-            
-                        <button type="submit" id="change-email-btn" class="btn btn-primary w-100">
-                            Simpan Perubahan Email
-                        </button>
-                    </form>
-                    </div>
-                </div>                
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">Ubah Password</div>
-                    <div class="card-body">
-                        <form id="form-ubah-password">
-                            <div class="mb-3"><label for="password-lama" class="form-label">Password Lama</label><input type="password" id="password-lama" class="form-control" required></div>
-                            <div class="mb-3"><label for="password-baru" class="form-label">Password Baru</label><input type="password" id="password-baru" class="form-control" required></div>
-                            <div class="mb-3"><label for="konfirmasi-password-baru" class="form-label">Konfirmasi Password Baru</label><input type="password" id="konfirmasi-password-baru" class="form-control" required></div>
-                            <button type="submit" class="btn btn-success w-100">Ubah Password</button>
-                        </form>
-                    </div>
-                </div>
-        </div> 
+       
         <nav class="navbar fixed-bottom bg-white shadow-lg">
         <div class="container-fluid">
             <ul class="nav nav-fill w-100">
                 <li class="nav-item"><a id="tab-home" class="nav-link active" href="#"><i class="bi bi-house-door-fill d-block fs-4"></i><small>Home</small></a></li>
                 <li class="nav-item"><a id="tab-riwayat" class="nav-link" href="#"><i class="bi bi-clock-history d-block fs-4"></i><small>Riwayat</small></a></li>
                 <li class="nav-item"><a id="tab-izin" class="nav-link" href="#"><i class="bi bi-envelope-fill d-block fs-4"></i><small>Izin</small></a></li>
-                <li class="nav-item"><a id="tab-profil" class="nav-link" href="#"><i class="bi bi-person-circle d-block fs-4"></i><small>Profil</small></a></li>
+                <li class="nav-item"><a id="tab-profil" class="nav-link" href="profil-guru.html"><i class="bi bi-person-circle d-block fs-4"></i><small>Profil</small></a></li>
                 <li class="nav-item"><a class="nav-link" href="#" id="tombol-logout-guru"><i class="bi bi-box-arrow-right d-block fs-4"></i><small>Logout</small></a></li>
             </ul>
         </div>
