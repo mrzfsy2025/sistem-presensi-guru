@@ -77,13 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             namaGuruElem.textContent = data.profil.nama_lengkap;
             nipGuruElem.textContent = data.profil.nip_nipppk;
-//            document.getElementById('profil-nama').textContent = data.profil.nama_lengkap;
-//            document.getElementById('profil-nip').textContent = data.profil.nip_nipppk;
-//            document.getElementById('profil-email').textContent = data.profil.email;
-            
-//            const nip_nipppk = data.profil.nip_nipppk || '-';
-//            nipGuruElem.textContent = `NIP/NIPPPK: ${nip_nipppk}`;
-            
+          
             updateUIBerdasarkanStatus(data.status_presensi);
 
         } catch (error) {
