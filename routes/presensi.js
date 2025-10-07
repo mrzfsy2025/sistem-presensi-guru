@@ -78,14 +78,15 @@ router.post('/masuk', checkAuth, async (req, res) => {
         // Siapkan objek Date untuk batas waktu masuk pada hari ini
         const hariIni = waktuSekarang.toISOString().slice(0, 10);
         const waktuBatasMasuk = new Date(`${hariIni}T${batas_jam_masuk}`);
+    console.log("Objek Waktu Sekarang:", waktuSekarang);
+    console.log("Objek Waktu Batas Masuk:", waktuBatasMasuk);    
 
         // Lakukan perbandingan menggunakan objek Date yang akurat
         const status = waktuSekarang > waktuBatasMasuk ? 'Terlambat' : 'Tepat Waktu';
         // ===================================================================
-    console.log("Objek Waktu Sekarang:", waktuSekarang);
-    console.log("Objek Waktu Batas Masuk:", waktuBatasMasuk);    
-    
-    // Simpan jam dalam format string, namun status sudah benar
+    console.log("Hasil Status:", status); // Cek hasil akhir status
+
+        // Simpan jam dalam format string, namun status sudah benar
         await db.query("INSERT INTO presensi (id_guru, tanggal, jam_masuk, foto_masuk, status) VALUES (?, ?, ?, ?, ?);", [id_guru, tanggal_hari_ini, jam_sekarang_string, foto_masuk, status]);
         
         res.status(201).json({ message: `Presensi masuk berhasil pada jam ${jam_sekarang_string}. Status: ${status}.` });
