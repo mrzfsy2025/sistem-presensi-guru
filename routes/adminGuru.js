@@ -117,7 +117,7 @@ router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction(); // 1. Mulai transaksi
 
-        // 2. Hapus semua data anak (presensi, izin) terlebih dahulu
+        // 2. Hapus semua data(presensi, izin) terlebih dahulu
         console.log(`Menghapus data presensi untuk guru ID: ${guruId}`);
         await connection.execute('DELETE FROM presensi WHERE id_guru = ?', [guruId]);
 
@@ -126,7 +126,7 @@ router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
 
         // (Jika ada tabel lain yang berelasi dengan guru, tambahkan query DELETE di sini)
 
-        // 3. Setelah semua data anak bersih, hapus data induk (guru)
+        // 3. Setelah semua databersih, hapus data induk (guru)
         console.log(`Menghapus data utama guru ID: ${guruId}`);
         const [result] = await connection.execute('DELETE FROM guru WHERE id_guru = ?', [guruId]);
 
@@ -139,12 +139,14 @@ router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
         await connection.commit(); // 4. Jika semua berhasil, simpan perubahan secara permanen
         res.status(200).json({ message: 'Data guru dan semua data terkait berhasil dihapus permanen.' });
 
-    } catch (error) {
-        console.error("Gagal melakukan transaksi hapus guru:", error);
-        // 5. Jika ada satu saja error, batalkan semua operasi
-        if (connection) await connection.rollback();
-        res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' });
-    } finally {
+  } catch (error) {
+    console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:");
+    console.error(error); 
+    if (connection) await connection.rollback();
+    // Perhatikan baris ini hanya mengirim pesan generik
+    res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
+
+  } finally {
         // 6. Selalu lepaskan koneksi kembali ke pool
         if (connection) connection.release();
     }

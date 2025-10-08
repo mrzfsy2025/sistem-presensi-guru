@@ -85,7 +85,7 @@ function setupEventListeners() {
         if (tombol.classList.contains('edit-guru-btn')) {
             bukaFormEdit(id);
         } else if (tombol.classList.contains('hapus-guru-btn')) {
-            prosesHapusGuru(id, nama, tombol);
+            HapusGuru(id, nama, tombol);
         } else if (tombol.classList.contains('reset-guru-btn')) {
             bukaFormReset(id, nama);
         }
@@ -222,7 +222,7 @@ function bukaFormReset(id, nama) {
  * @param {string} nama - Nama guru untuk konfirmasi.
  * @param {HTMLElement} elementTombol - Referensi ke tombol yang diklik.
  */
-async function prosesHapusGuru(id, nama, elementTombol) {
+async function HapusGuru(id, nama, elementTombol) {
     const konfirmasi = confirm(
         `PERINGATAN!\n\nAnda akan menghapus data guru "${nama}" secara permanen. Semua data presensi dan izin terkait juga akan terhapus.\n\nApakah Anda yakin? Tindakan ini tidak dapat dibatalkan.`
     );
