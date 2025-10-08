@@ -1,18 +1,15 @@
-// File: /ABSENSI/server.js (VERSI FINAL YANG DIRAPIKAN)
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // =============================================================
-// MENGHUBUNGKAN RUTE API YANG SUDAH KITA BUAT
+// API
 // =============================================================
 const authRoutes = require('./routes/auth');
 const guruRoutes = require('./routes/guru');
@@ -24,7 +21,7 @@ const adminIzinRoutes = require('./routes/adminIzin');
 const laporanRoutes = require('./routes/laporan');
 const pengaturanRoutes = require('./routes/pengaturan');
 
-// Daftarkan rute-rute tersebut
+// rute-rute
 app.use('/api/auth', authRoutes);
 app.use('/api/guru', guruRoutes);
 app.use('/api/presensi', presensiRoutes);
@@ -35,13 +32,8 @@ app.use('/api/admin/izin', adminIzinRoutes);
 app.use('/api/laporan', laporanRoutes);
 app.use('/api/pengaturan', pengaturanRoutes);
 
-// =============================================================
-// MENJALANKAN SERVER
-// =============================================================
 const PORT = process.env.PORT || 8080; 
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server berjalan di port ${PORT}`);
 });
-
 module.exports = app;
