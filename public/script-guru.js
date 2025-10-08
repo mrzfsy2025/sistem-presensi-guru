@@ -246,5 +246,8 @@ async function HapusGuru(id, nama, elementTombol) {
         alert(`Gagal menghapus: ${error.message}`);
         elementTombol.disabled = false;
         elementTombol.innerHTML = '<i class="bi bi-trash-fill"></i> Hapus'; // Kembalikan seperti semula jika gagal
+    tambahModal.hide();
+    editModal.hide();
+    resetPasswordModal.hide();
     }
 }
