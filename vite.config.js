@@ -4,12 +4,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   build: {
-    // Tentukan folder output
     outDir: '../public',
-    // Kosongkan folder output sebelum build
     emptyOutDir: true,
     rollupOptions: {
-      // Tentukan file HTML mana saja yang menjadi halaman utama
       input: {
         main: resolve(__dirname, 'src/dashboard_utama.html'),
         login: resolve(__dirname, 'src/login.html'),
@@ -23,6 +20,6 @@ export default defineConfig({
       },
     },
   },
-  // Tentukan folder akar (root) dari source code frontend
-  root: 'src',
+
+root: 'src',
 });
