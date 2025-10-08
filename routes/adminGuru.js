@@ -109,35 +109,45 @@ router.put('/:id_guru', async (req, res) => {
 // METHOD: DELETE, ENDPOINT: /api/admin/guru/:id_guru
 // =================================================================
 router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
-  const guruId = req.params.id_guru; 
+    const guruId = req.params.id;
+    
+    // Gunakan koneksi dari pool untuk transaksi yang aman
     let connection;
     try {
         connection = await db.getConnection();
-        await connection.beginTransaction();
+        await connection.beginTransaction(); // 1. Mulai transaksi
 
+        // 2. Hapus semua data(presensi, izin) terlebih dahulu
         console.log(`Menghapus data presensi untuk guru ID: ${guruId}`);
         await connection.execute('DELETE FROM presensi WHERE id_guru = ?', [guruId]);
 
         console.log(`Menghapus data izin/sakit untuk guru ID: ${guruId}`);
         await connection.execute('DELETE FROM izin_sakit_tugas WHERE id_guru = ?', [guruId]);
 
+        // (Jika ada tabel lain yang berelasi dengan guru, tambahkan query DELETE di sini)
+
+        // 3. Setelah semua databersih, hapus data induk (guru)
         console.log(`Menghapus data utama guru ID: ${guruId}`);
         const [result] = await connection.execute('DELETE FROM guru WHERE id_guru = ?', [guruId]);
 
+        // Jika ID guru tidak ditemukan di tabel guru
         if (result.affectedRows === 0) {
-            await connection.rollback();
+            await connection.rollback(); // Batalkan semua operasi sebelumnya
             return res.status(404).json({ message: 'Guru tidak ditemukan.' });
         }
 
-        await connection.commit();
+        await connection.commit(); // 4. Jika semua berhasil, simpan perubahan secara permanen
         res.status(200).json({ message: 'Data guru dan semua data terkait berhasil dihapus permanen.' });
 
-    } catch (error) {
-        console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:");
-        console.error(error); 
-        if (connection) await connection.rollback();
-        res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
-    } finally {
+  } catch (error) {
+    console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:");
+    console.error(error); 
+    if (connection) await connection.rollback();
+    // Perhatikan baris ini hanya mengirim pesan generik
+    res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
+
+  } finally {
+        // 6. Selalu lepaskan koneksi kembali ke pool
         if (connection) connection.release();
     }
 });
