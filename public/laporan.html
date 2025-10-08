@@ -6,17 +6,9 @@
     <script src="auth-guard-admin.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* Sembunyikan filter dan tombol saat halaman dicetak */
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .card {
-                box-shadow: none !important;
-                border: none !important;
-            }
-        }
+        @media print { .no-print { display: none !important; } .card { box-shadow: none !important; border: none !important; } }
     </style>
 </head>
 <body>
@@ -27,141 +19,56 @@
                     <h3><i class="bi bi-file-earmark-text-fill me-2"></i>Laporan Rekapitulasi Kehadiran</h3>
                     <a href="dashboard_utama.html" class="btn btn-secondary">Kembali ke Dasbor</a>
                 </div>
-                    <div class="row g-3 align-items-center mb-4 no-print">
-                    <div class="col-auto">
-                        <label for="filter-bulan" class="col-form-label">Bulan:</label>
-                    </div>
-                    <div class="col-auto">
-                        <select class="form-select" id="filter-bulan"></select>
-                    </div>
-                    <div class="col-auto">
-                        <label for="filter-tahun" class="col-form-label">Tahun:</label>
-                    </div>
-                    <div class="col-auto">
-                        <select class="form-select" id="filter-tahun"></select>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-primary" id="tombol-tampilkan">Tampilkan Laporan</button>
-                    </div>
+                <div class="row g-3 align-items-center mb-4 no-print">
+                    <div class="col-auto"><label for="filter-bulan" class="col-form-label">Bulan:</label></div>
+                    <div class="col-auto"><select class="form-select" id="filter-bulan"></select></div>
+                    <div class="col-auto"><label for="filter-tahun" class="col-form-label">Tahun:</label></div>
+                    <div class="col-auto"><select class="form-select" id="filter-tahun"></select></div>
+                    <div class="col-auto"><button class="btn btn-primary" id="tombol-tampilkan">Tampilkan Laporan</button></div>
                     <div class="col-auto ms-auto">
-                        <button class="btn btn-success" id="tombol-cetak" disabled>
-                            <i class="bi bi-printer-fill me-2"></i>Cetak Laporan
-                        </button>
+                        <button class="btn btn-success" id="tombol-cetak" disabled><i class="bi bi-printer-fill me-2"></i>Cetak Laporan</button>
+                        <button id="exportExcelBtn" class="btn btn-primary" style="background-color: #1D6F42; border-color: #1D6F42; margin-left: 10px;"><i class="fas fa-file-excel"></i> Export Excel</button>
                     </div>
                 </div>
-
-                <div class="text-center mb-3">
-                    <h4 id="judul-laporan"></h4>
-                </div>
-
+                <div class="text-center mb-3"><h4 id="judul-laporan"></h4></div>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table id="tabelKehadiran" class="table table-bordered table-striped">
                         <thead class="table-dark text-center">
                             <tr>
-                                <th rowspan="2">No</th>
-                                <th rowspan="2">Nama Lengkap</th>
-                                <th rowspan="2">NIP/NIPPPK</th>
-                                <th colspan="5">Jumlah Kehadiran</th>
+                                <th rowspan="2">No</th><th rowspan="2">Nama Lengkap</th><th rowspan="2">NIP/NIPPPK</th><th colspan="5">Jumlah Kehadiran</th>
                             </tr>
                             <tr>
-                                <th>Hadir</th>
-                                <th>Sakit</th>
-                                <th>Izin</th>
-                                <th>Alpa</th>
-                                <th>Terlambat</th>
+                                <th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Terlambat</th>
                             </tr>
                         </thead>
                         <tbody id="tabel-laporan-body" class="text-center">
-                            <tr>
-                                <td colspan="8" class="text-muted">Silakan pilih periode laporan dan klik "Tampilkan".</td>
-                            </tr>
+                            <tr><td colspan="8" class="text-muted">Silakan pilih periode laporan dan klik "Tampilkan".</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-    <div class="container mx-auto p-4 mt-8">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold mb-4">Buat Akun Awal Guru</h2>
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
-            Perhatian.. ! tombol ini akan me-reset password semua akun guru. Hanya digunakan untuk distribusi kredensial awal atau untuk mereset password massal.
-            <p> <button id="getGuruDataBtn" class="bg-red-600 text-blue py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none transition duration-150 ease-in-out">
-            Buat dan Tampilkan Akun Awal
-            </button> </p>
-        </div>    
-        <div id="hasilDataGuru" class="mt-6 p-4 bg-gray-50 border rounded-md hidden">
-            <h4 class="font-bold text-red-600 mb-3">Data ini rahasia, bila sudah dibuat maka harus segera disalin dan distribusikan.</h4>
-            <pre id="dataOutput" class="whitespace-pre-wrap text-sm"></pre>
+    <div class="container mt-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-shield-lock-fill me-2"></i>Buat Akun Awal Guru</h5>
+                <div class="alert alert-warning" role="alert">
+                    <strong>Perhatian!</strong> Tombol ini akan me-reset password semua akun guru. Hanya digunakan untuk distribusi kredensial awal atau untuk mereset password massal.
+                </div>
+                <button id="getGuruDataBtn" class="btn btn-danger"><i class="bi bi-shield-lock-fill me-2"></i>Buat & Tampilkan Kredensial Awal</button>
+                <div id="hasilDataGuru" class="mt-4 d-none">
+                    <div class="alert alert-danger"><strong>Data ini rahasia!</strong> Segera salin dan distribusikan, lalu tutup halaman ini.</div>
+                    <pre id="dataOutput" class="bg-light p-3 rounded"></pre>
+                </div>
+                <div id="errorMessage" class="mt-4 alert alert-danger d-none"></div>
+            </div>
         </div>
-         <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden"></div>
     </div>
-    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="script-laporan.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const getGuruDataBtn = document.getElementById('getGuruDataBtn');
-            const hasilDataGuruDiv = document.getElementById('hasilDataGuru');
-            const dataOutputPre = document.getElementById('dataOutput');
-            const errorMessageDiv = document.getElementById('errorMessage');
-
-            if (getGuruDataBtn) {
-                getGuruDataBtn.addEventListener('click', async () => {
-                    // Ambil token JWT dari localStorage
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        errorMessageDiv.textContent = 'Akses ditolak. Silakan login ulang sebagai Admin.';
-                        errorMessageDiv.classList.remove('d-none');
-                        return;
-                    }
-
-                    // Reset tampilan
-                    getGuruDataBtn.disabled = true;
-                    getGuruDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memuat...';
-                    hasilDataGuruDiv.classList.add('d-none');
-                    errorMessageDiv.classList.add('d-none');
-
-                    try {
-                        const response = await fetch('/api/laporan/akun-awal-guru', {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || `Error: Gagal mengambil data.`);
-                        }
-
-                        const credentials = await response.json();
-
-                        if (credentials.length === 0) {
-                            dataOutputPre.textContent = 'Tidak ada data guru yang ditemukan untuk di-reset.';
-                        } else {
-                            let formattedText = 'Daftar Kredensial Awal Guru (Siap untuk di-copy):\n\n';
-                            credentials.forEach(guru => {
-                                formattedText += `Nama    : ${guru.nama_lengkap}\n`;
-                                formattedText += `Email   : ${guru.email}\n`;
-                                formattedText += `Password: ${guru.password_awal}\n`;
-                                formattedText += `-------------------------------------------------\n`;
-                            });
-                            dataOutputPre.textContent = formattedText;
-                        }
-                        
-                        hasilDataGuruDiv.classList.remove('d-none');
-
-                    } catch (error) {
-                        errorMessageDiv.textContent = `Gagal memuat data: ${error.message}`;
-                        errorMessageDiv.classList.remove('d-none');
-                    } finally {
-                        getGuruDataBtn.disabled = false;
-                        getGuruDataBtn.innerHTML = '<i class="bi bi-shield-lock-fill me-2"></i>Buat & Tampilkan Kredensial Awal';
-                    }
-                });
-            }
-        });
-    </script>
+    
 </body>
 </html>
