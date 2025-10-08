@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database'); 
 const router = express.Router();
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+// const crypto = require('crypto');
+// const nodemailer = require('nodemailer');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-default';
 

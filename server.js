@@ -1,4 +1,4 @@
-// File: /ABSENSI/server.js (VERSI FINAL YANG DIRAPIKAN)
+// File: /ABSENSI/server.js (VERSI FINAL)
 
 require('dotenv').config();
 const express = require('express');
@@ -35,11 +35,7 @@ app.use('/api/admin/izin', adminIzinRoutes);
 app.use('/api/laporan', laporanRoutes);
 app.use('/api/pengaturan', pengaturanRoutes);
 
-// =============================================================
-// MENJALANKAN SERVER
-// =============================================================
 const PORT = process.env.PORT || 8080; 
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server berjalan di port ${PORT}`);
 });

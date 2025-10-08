@@ -1,4 +1,4 @@
-// File: /public/app-guru.js (VERSI PERBAIKAN SYNTAX ERROR)
+// File: /public/app-guru.js (VERSI PERBAIKAN & INTEGRASI FOTO RESOLUSI RENDAH)
 
 document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
@@ -36,6 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvasElem = document.getElementById('camera-canvas');
     const tombolAmbilFoto = document.getElementById('tombol-ambil-foto');
     let stream;
+    
+    // --- VARIABEL UNTUK RESOLUSI RENDAH DARI ambil-foto.html ---
+    const TARGET_WIDTH = 320; // Lebar akhir yang lebih kecil (Contoh: 320px)
+    const TARGET_HEIGHT = 240; // Tinggi akhir yang lebih kecil (Contoh: 240px)
+    const JPEG_QUALITY = 0.6; // Kualitas kompresi JPEG (0.0 hingga 1.0)
+    // -------------------------------------------------------------
 
     // =================================================================
     // BAGIAN 2: FUNGSI UTAMA & INISIALISASI
@@ -171,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function handleTombolPresensi() {
         if (!statusSaatIni || statusSaatIni === 'SUDAH_PULANG') return;
         try {
+            // Meminta akses kamera
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             videoElem.srcObject = stream;
             cameraModal.show();
@@ -181,10 +188,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function handleAmbilFoto() {
-        canvasElem.width = videoElem.videoWidth;
-        canvasElem.height = videoElem.videoHeight;
-        canvasElem.getContext('2d').drawImage(videoElem, 0, 0, videoElem.videoWidth, videoElem.videoHeight);
-        const foto_base64 = canvasElem.toDataURL('image/jpeg');
+        // --- START: MODIFIKASI UNTUK FOTO RESOLUSI RENDAH ---
+        // 1. Tentukan ukuran canvas target (Resolusi Rendah)
+        canvasElem.width = TARGET_WIDTH;
+        canvasElem.height = TARGET_HEIGHT;
+        const ctx = canvasElem.getContext('2d');
+        
+        // 2. Gambar frame video saat ini ke canvas (Resizing otomatis)
+        ctx.drawImage(videoElem, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+        
+        // 3. Ekstrak data Base64 dengan kompresi rendah (JPEG_QUALITY)
+        const foto_base64 = canvasElem.toDataURL('image/jpeg', JPEG_QUALITY);
+        // --- END: MODIFIKASI UNTUK FOTO RESOLUSI RENDAH ---
 
         if (stream) { stream.getTracks().forEach(track => track.stop()); }
         cameraModal.hide();
@@ -203,10 +218,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let endpoint = '';
             if (statusSaatIni === 'BELUM_MASUK') {
                 endpoint = '/api/presensi/masuk';
-                dataPresensi.foto_masuk = foto_base64;
+                dataPresensi.foto_masuk = foto_base64; // Menggunakan foto resolusi rendah
             } else {
                 endpoint = '/api/presensi/pulang';
-                dataPresensi.foto_pulang = foto_base64;
+                dataPresensi.foto_pulang = foto_base64; // Menggunakan foto resolusi rendah
             }
             
             tombolPresensi.disabled = true;
@@ -292,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`Error: ${error.message}`);
         }
     }
-
     function formatWaktuLokal(waktuUTC) {
     if (!waktuUTC) return '-';
     const tanggal = new Date(`1970-01-01T${waktuUTC}Z`);
@@ -305,8 +319,5 @@ document.addEventListener('DOMContentLoaded', function() {
     hour12: false 
     });
     };
-    // =================================================================
-    // Jalankan aplikasi
-    // =================================================================
     init();
 });

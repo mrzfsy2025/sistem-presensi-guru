@@ -105,26 +105,43 @@ router.put('/:id_guru', async (req, res) => {
 });
 
 // =================================================================
-// BAGIAN 4: DELETE (Menonaktifkan guru - Soft Delete)
+// BAGIAN 4: DELETE (Menghapus data guru - Hard Delete)
 // METHOD: DELETE, ENDPOINT: /api/admin/guru/:id_guru
 // =================================================================
-router.delete('/:id_guru', async (req, res) => {
-  const { id_guru } = req.params;
+router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
+  const guruId = req.params.id_guru; 
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-  try {
-    const query = "UPDATE guru SET status = 'Tidak Aktif' WHERE id_guru = ?;";
-    const [result] = await db.query(query, [id_guru]);
+        console.log(`Menghapus data presensi untuk guru ID: ${guruId}`);
+        await connection.execute('DELETE FROM presensi WHERE id_guru = ?', [guruId]);
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Data guru tidak ditemukan." });
+        console.log(`Menghapus data izin/sakit untuk guru ID: ${guruId}`);
+        await connection.execute('DELETE FROM izin_sakit_tugas WHERE id_guru = ?', [guruId]);
+
+        console.log(`Menghapus data utama guru ID: ${guruId}`);
+        const [result] = await connection.execute('DELETE FROM guru WHERE id_guru = ?', [guruId]);
+
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            return res.status(404).json({ message: 'Guru tidak ditemukan.' });
+        }
+
+        await connection.commit();
+        res.status(200).json({ message: 'Data guru dan semua data terkait berhasil dihapus permanen.' });
+
+    } catch (error) {
+        console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:");
+        console.error(error); 
+        if (connection) await connection.rollback();
+        res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
+    } finally {
+        if (connection) connection.release();
     }
-
-    res.status(200).json({ message: "Data guru berhasil dinonaktifkan." });
-  } catch (error) {
-    console.error("Error saat menonaktifkan guru:", error);
-    res.status(500).json({ message: "Terjadi error pada server." });
-  }
 });
+
 // =================================================================
 // BAGIAN 5: RESET (Reset - Password)
 // METHOD: Reset-Password, ENDPOINT: /api/auth/forgot-password/:id_guru

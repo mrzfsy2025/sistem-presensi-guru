@@ -82,7 +82,7 @@ router.post('/masuk', checkAuth, async (req, res) => {
     console.log("Objek Waktu Batas Masuk:", waktuBatasMasuk);    
 
         // Lakukan perbandingan menggunakan objek Date yang akurat
-        const status = waktuSekarang > waktuBatasMasuk ? 'Terlambat' : 'Tepat Waktu';
+        const status = waktuSekarang < waktuBatasMasuk ? 'Tepat Waktu' : 'Terlambat';
         // ===================================================================
     console.log("Hasil Status:", status); // Cek hasil akhir status
 
@@ -137,5 +137,18 @@ router.get('/riwayat', checkAuth, async (req, res) => {
         res.status(500).json({ message: "Terjadi error pada server." });
     }
 });
+
+function formatWaktuLokal(waktuUTC) {
+    if (!waktuUTC) return '-';
+    const tanggal = new Date(`1970-01-01T${waktuUTC}Z`);
+    // Waktu zona waktu Asia/Jakarta (GMT+7) format 24 jam
+    return tanggal.toLocaleTimeString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false 
+    });
+    };
 
 module.exports = router;
