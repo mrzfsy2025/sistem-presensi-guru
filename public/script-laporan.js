@@ -1,7 +1,6 @@
 // File: /public/script-laporan.js (SUDAH DIPERBAIKI)
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Referensi ke elemen-elemen HTML
     const filterBulan = document.getElementById('filter-bulan');
     const filterTahun = document.getElementById('filter-tahun');
     const tombolTampilkan = document.getElementById('tombol-tampilkan');
@@ -9,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const tombolExport = document.getElementById('exportExcelBtn');
     const getGuruDataBtn = document.getElementById('getGuruDataBtn');
 
-    // Panggil fungsi untuk mengisi filter jika elemennya ada
     if (filterBulan && filterTahun) {
         isiFilter(filterBulan, filterTahun);
     }
     
-    // Tambahkan event listener ke tombol-tombol
     if (tombolTampilkan) tombolTampilkan.addEventListener('click', tampilkanLaporan);
     if (tombolCetak) tombolCetak.addEventListener('click', () => window.print());
     if (tombolExport) tombolExport.addEventListener('click', exportLaporanExcel);
@@ -57,13 +54,8 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
-//    window.daftarGuru = null;
-//    window.dataPresensi = null;
 
     try {
-        // =================================================================
-        // PERUBAHAN UTAMA: Panggil endpoint /bulanan yang sudah benar
-        // =================================================================
         const response = await fetch(`/api/laporan/bulanan?bulan=${bulan}&tahun=${tahun}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -73,9 +65,7 @@ async function tampilkanLaporan() {
             throw new Error(errorData.message);
         }
         
-        // Data yang diterima sudah matang dan siap ditampilkan
         const dataLaporan = await response.json();
-        window.laporanData = dataLaporan;
         tabelBody.innerHTML = ''; 
 
         if (!dataLaporan || dataLaporan.length === 0) {
@@ -83,9 +73,6 @@ async function tampilkanLaporan() {
             return;
         }
         
-        // =================================================================
-        // PERUBAHAN UTAMA: Langsung tampilkan data, tidak perlu menghitung lagi
-        // =================================================================
         dataLaporan.forEach((guru, index) => {
             const baris = `
                 <tr>
@@ -108,11 +95,11 @@ async function tampilkanLaporan() {
     }
 }
 
+// =================================================================
+// FUNGSI EKSPOR EXCEL YANG SUDAH DIPERBAIKI TOTAL
+// =================================================================
 async function exportLaporanExcel() {
-    // Referensi ke tombol ekspor
     const tombolExport = document.getElementById('exportExcelBtn');
-
-    // Ambil nilai filter saat ini
     const bulanValue = document.getElementById('filter-bulan').value;
     const bulanTeks = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text.toUpperCase();
     const tahun = document.getElementById('filter-tahun').value;
@@ -131,11 +118,9 @@ async function exportLaporanExcel() {
             throw new Error(errorData.message);
         }
 
-        const { daftarGuru, dataPresensi } = await response.json();
+        // Ambil SEMUA data yang sudah dipaketkan oleh server
+        const { daftarGuru, dataPresensi, dataRekapFinal } = await response.json();
         
-        // DEBUGGING: Baris ini akan menampilkan data mentah di console browser
-        console.log('DATA MENTAH DARI SERVER UNTUK EXCEL:', dataPresensi);
-
         if (!daftarGuru || daftarGuru.length === 0) {
             alert("Tidak ada data guru untuk diekspor pada periode ini.");
             return;
@@ -146,28 +131,29 @@ async function exportLaporanExcel() {
         const headerGrup = ["", "", "", bulanTeks, ...Array(30).fill(""), "Jumlah Kehadiran"];
 
         const dataBody = daftarGuru.map((guru, index) => {
-            const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
+            // Langkah 1: Siapkan grid harian (bagian ini tetap sama)
             const barisTanggal = Array(31).fill("");
-            
-            // =======================================================
-            // PERUBAHAN 1: Penggunaan '==' agar lebih fleksibel (angka vs teks)
-            // =======================================================
             dataPresensi.filter(p => p.id_guru == guru.id_guru).forEach(p => {
-                const tanggal = new Date(p.tanggal).getDate() - 1; 
-                
-                // =======================================================
-                // PERUBAHAN 2: Bersihkan data status sebelum dibandingkan
-                // .trim() -> hapus spasi, .toLowerCase() -> ubah jadi huruf kecil
-                // =======================================================
+                const tanggal = new Date(p.tanggal).getDate() - 1;
                 const statusBersih = p.status.trim().toLowerCase();
 
-                if (statusBersih === 'hadir' || statusBersih === 'terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
-                else if (statusBersih === 'sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
-                else if (statusBersih === 'izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
-                else if (statusBersih === 'alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
+                if (statusBersih === 'hadir' || statusBersih === 'terlambat') { barisTanggal[tanggal] = '✔'; }
+                else if (statusBersih === 'sakit') { barisTanggal[tanggal] = 'S'; }
+                else if (statusBersih === 'izin') { barisTanggal[tanggal] = 'I'; }
+                else if (statusBersih === 'alpa') { barisTanggal[tanggal] = 'A'; }
             });
-            const jumlahTotal = rekap.Hadir + rekap.Sakit + rekap.Izin + rekap.Alpa;
-            return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Alpa, jumlahTotal];
+
+            // Langkah 2: Ambil rekap yang sudah akurat dari server, JANGAN HITUNG ULANG!
+            const rekapAkurat = dataRekapFinal.find(r => r.id_guru == guru.id_guru);
+            
+            const hadir = rekapAkurat ? parseInt(rekapAkurat.hadir) : 0;
+            const sakit = rekapAkurat ? parseInt(rekapAkurat.sakit) : 0;
+            const izin = rekapAkurat ? parseInt(rekapAkurat.izin) : 0;
+            const alpa = rekapAkurat ? parseInt(rekapAkurat.alpa) : 0;
+            const jumlahTotal = hadir + sakit + izin + alpa;
+
+            // Langkah 3: Gabungkan grid harian dengan rekap akurat
+            return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, hadir, sakit, izin, alpa, jumlahTotal];
         });
 
         const dataFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
@@ -188,8 +174,8 @@ async function exportLaporanExcel() {
     }
 }
 
+
 async function buatDanTampilkanAkunAwal() {
-    // ... (Tidak ada perubahan di fungsi ini)
     const getGuruDataBtn = document.getElementById('getGuruDataBtn');
     const hasilDataGuruDiv = document.getElementById('hasilDataGuru');
     const dataOutputPre = document.getElementById('dataOutput');
