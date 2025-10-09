@@ -25,22 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // BAGIAN FUNGSI-FUNGSI LOGIKA
 // =================================================================
 
-function isiFilter(filterBulan, filterTahun) {
-    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    const tanggalSekarang = new Date();
-    const bulanSekarang = tanggalSekarang.getMonth();
-    const tahunSekarang = tanggalSekarang.getFullYear();
-
-    namaBulan.forEach((nama, index) => {
-        filterBulan.add(new Option(nama, index + 1));
-    });
-    filterBulan.value = bulanSekarang + 1;
-
-    for (let i = 0; i < 5; i++) {
-        const tahun = tahunSekarang - i;
-        filterTahun.add(new Option(tahun, tahun));
-    }
-}
 async function fetchDetailDataForExport(bulan, tahun) {
     const token = localStorage.getItem('token');
     const response = await fetch(`/api/laporan/harian-detail?bulan=${bulan}&tahun=${tahun}`, {
