@@ -57,8 +57,10 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
-    window.daftarGuru = null;
-    window.dataPresensi = null;
+    
+    // Hapus variabel global yang tidak diperlukan lagi
+    // window.daftarGuru = null;
+    // window.dataPresensi = null;
 
     try {
         // =================================================================
@@ -75,7 +77,7 @@ async function tampilkanLaporan() {
         
         // Data yang diterima sudah matang dan siap ditampilkan
         const dataLaporan = await response.json();
-    //    window.laporanData = dataLaporan;
+        window.laporanData = dataLaporan;
         tabelBody.innerHTML = ''; 
 
         if (!dataLaporan || dataLaporan.length === 0) {
@@ -108,43 +110,62 @@ async function tampilkanLaporan() {
     }
 }
 
+// File: /public/script-laporan.js
+
 function exportLaporanExcel() {
-    if (!window.dataPresensi || !window.daftarGuru) {
+    if (!window.laporanData || window.laporanData.length === 0) {
         alert("Silakan tampilkan laporan terlebih dahulu sebelum mengekspor!");
         return;
     }
 
-    const dataPresensi = window.dataPresensi;
-    const daftarGuru = window.daftarGuru;
+    const laporanData = window.laporanData;
     const bulan = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text.toUpperCase();
     const tahun = document.getElementById('filter-tahun').value;
 
-    const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Tahun Pelajaran ${tahun}-${parseInt(tahun)+1}`];
-    const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", ...Array.from({length: 31}, (_, i) => i + 1), "Hadir", "Sakit", "Izin", "Alpa", "Jumlah"];
-    const headerGrup = ["", "", "", bulan, ...Array(30).fill(""), "Jumlah Kehadiran"];
+    // Header untuk file Excel
+    const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Bulan ${bulan} Tahun ${tahun}`];
+    const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", "Hadir", "Sakit", "Izin", "Alpa", "Terlambat"];
 
-    const dataBody = daftarGuru.map((guru, index) => {
-        const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
-        const barisTanggal = Array(31).fill("");
-        
-        dataPresensi.filter(p => p.id_guru === guru.id_guru).forEach(p => {
-            const tanggal = new Date(p.tanggal).getDate() - 1;
-            // Diperbarui juga di sini untuk konsistensi, meskipun logika Excel mungkin sudah benar
-            if (p.status === 'Hadir' || p.status === 'Terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
-            else if (p.status === 'Sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
-            else if (p.status === 'Izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
-            else if (p.status === 'Alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
-        });
-        const jumlahTotal = rekap.Hadir + rekap.Sakit + rekap.Izin + rekap.Alpa;
-        return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Alpa, jumlahTotal];
+    // Siapkan data body dari variabel global
+    // Tidak perlu filter atau rekap manual lagi, data sudah matang!
+    const dataBody = laporanData.map((guru, index) => {
+        return [
+            index + 1,
+            guru.nama_lengkap,
+            guru.nip_nipppk,
+            guru.hadir,
+            guru.sakit,
+            guru.izin,
+            guru.alpa,
+            guru.terlambat
+        ];
     });
 
-    const dataFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
+    // Gabungkan semua data menjadi satu array
+    const dataFinal = [judul, [""], headerKolom, ...dataBody];
+
+    // Buat worksheet dan workbook menggunakan library SheetJS (XLSX)
     const ws = XLSX.utils.aoa_to_sheet(dataFinal);
-    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 38 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 38 } }, { s: { r: 3, c: 3 }, e: { r: 3, c: 33 } }, { s: { r: 3, c: 34 }, e: { r: 3, c: 38 } }];
-    ws['!cols'] = [{ wch: 4 }, { wch: 30 }, { wch: 22 }, ...Array(31).fill({ wch: 3 }), { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 7 }];
+    
+    // Styling (opsional, tapi membuat lebih rapi)
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } } // Gabungkan sel untuk judul
+    ];
+    ws['!cols'] = [
+        { wch: 4 },    // No
+        { wch: 35 },   // Nama Lengkap
+        { wch: 22 },   // NIP/NIPPPK
+        { wch: 8 },    // Hadir
+        { wch: 8 },    // Sakit
+        { wch: 8 },    // Izin
+        { wch: 8 },    // Alpa
+        { wch: 10 }    // Terlambat
+    ];
+    
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, `Laporan ${bulan}`);
+
+    // Ekspor file
     XLSX.writeFile(wb, `Laporan_Kehadiran_${bulan}_${tahun}.xlsx`);
 }
 
