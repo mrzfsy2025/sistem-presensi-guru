@@ -24,32 +24,52 @@ const getWorkingDaysInMonth = (year, month) => {
 // ENDPOINT DETAIL HARIAN (DIPERBAIKI)
 // =================================================================
 router.get('/harian-detail', [checkAuth, checkAdmin], async (req, res) => {
-    console.log("Pesanan diterima di /api/laporan/harian-detail");
-
     try {
         const { bulan, tahun } = req.query;
         if (!bulan || !tahun) {
             return res.status(400).json({ message: "Parameter bulan dan tahun dibutuhkan." });
         }
 
-        const queryGuru = "SELECT id_guru, nip_nipppk, nama_lengkap FROM guru";
-        const [daftarGuru] = await db.execute(queryGuru);
-
+        // Langkah 1: Ambil data mentah harian (tetap sama)
         const queryPresensi = "SELECT id_guru, tanggal, status FROM presensi WHERE MONTH(tanggal) = ? AND YEAR(tanggal) = ?";
         const [dataPresensi] = await db.execute(queryPresensi, [bulan, tahun]);
+        
+        // Langkah 2: Ambil juga data rekapitulasi yang akurat (logika dari endpoint /bulanan)
+        const totalHariKerja = getWorkingDaysInMonth(parseInt(tahun), parseInt(bulan));
+        const queryRekap = `
+            SELECT g.id_guru, g.nama_lengkap, g.nip_nipppk,
+              COALESCE(p.total_hadir, 0) AS hadir,
+              COALESCE(i.total_sakit, 0) AS sakit,
+              COALESCE(i.total_izin, 0) AS izin
+            FROM guru g
+            LEFT JOIN (
+              SELECT id_guru, COUNT(*) AS total_hadir FROM presensi WHERE (status = 'Hadir' OR status = 'Terlambat') AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? GROUP BY id_guru
+            ) p ON g.id_guru = p.id_guru
+            LEFT JOIN (
+              SELECT id_guru, SUM(CASE WHEN jenis_izin = 'Sakit' THEN 1 ELSE 0 END) AS total_sakit, SUM(CASE WHEN jenis_izin = 'Izin' THEN 1 ELSE 0 END) AS total_izin FROM izin_sakit_tugas WHERE status = 'Disetujui' AND MONTH(tanggal_mulai) = ? AND YEAR(tanggal_mulai) = ? GROUP BY id_guru
+            ) i ON g.id_guru = i.id_guru
+            WHERE g.status = 'Aktif';
+        `;
+        const [rowsRekap] = await db.query(queryRekap, [bulan, tahun, bulan, tahun]);
+        const dataRekap = rowsRekap.map(guru => {
+            const totalKehadiran = parseInt(guru.hadir) + parseInt(guru.sakit) + parseInt(guru.izin);
+            let alpa = totalHariKerja - totalKehadiran;
+            if (alpa < 0) { alpa = 0; }
+            return { ...guru, alpa: alpa };
+        });
 
-        const responsFinal = {
-            daftarGuru: daftarGuru,
-            dataPresensi: dataPresensi
-        };
-        res.json(responsFinal);
+        // Langkah 3: Kirim keduanya dalam satu paket
+        res.json({
+            daftarGuru: dataRekap, // Gunakan ini sebagai daftar guru utama
+            dataPresensi: dataPresensi,
+            dataRekapFinal: dataRekap // Kirim data rekap terpisah
+        });
 
     } catch (error) {
-        console.error("Error saat memproses laporan:", error);
-        res.status(500).json({ message: "Terjadi kesalahan di server saat mengambil data." });
+        console.error("Error saat memproses laporan detail:", error);
+        res.status(500).json({ message: "Terjadi kesalahan di server." });
     }
 });
-
 
 // =================================================================
 // ENDPOINT LAPORAN BULANAN (TIDAK ADA PERUBAHAN)
