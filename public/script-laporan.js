@@ -57,8 +57,6 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
-//    window.daftarGuru = null;
-//    window.dataPresensi = null;
 
     try {
         // =================================================================
@@ -142,7 +140,7 @@ async function exportLaporanExcel() {
         }
         console.log("Data detail berhasil diambil, mulai membuat file Excel.");
 
-        // 3. Logika pembuatan Excel (tetap sama seperti yang Anda inginkan)
+        // 3. Logika pembuatan Excel
         const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Tahun Pelajaran ${tahun}-${parseInt(tahun)+1}`];
         const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", ...Array.from({length: 31}, (_, i) => i + 1), "Hadir", "Sakit", "Izin", "Alpa", "Jumlah"];
         const headerGrup = ["", "", "", bulanTeks, ...Array(30).fill(""), "Jumlah Kehadiran"];
@@ -152,8 +150,11 @@ async function exportLaporanExcel() {
             const barisTanggal = Array(31).fill("");
             
             dataPresensi.filter(p => p.id_guru === guru.id_guru).forEach(p => {
-                // Menggunakan getUTCDate untuk menghindari masalah timezone
-                const tanggal = new Date(p.tanggal).getUTCDate() - 1;
+                // =======================================================
+                // INI BAGIAN YANG DIPERBAIKI
+                const tanggal = new Date(p.tanggal).getDate() - 1; 
+                // =======================================================
+                
                 if (p.status === 'Hadir' || p.status === 'Terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
                 else if (p.status === 'Sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
                 else if (p.status === 'Izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
