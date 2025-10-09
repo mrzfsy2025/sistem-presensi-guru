@@ -57,41 +57,52 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
-    window.daftarGuru = null;
-    window.dataPresensi = null;
+    
+    // Hapus variabel global yang tidak diperlukan lagi
+    // window.daftarGuru = null;
+    // window.dataPresensi = null;
 
     try {
-        const response = await fetch(`/api/laporan/harian-detail?bulan=${bulan}&tahun=${tahun}`, {
+        // =================================================================
+        // PERUBAHAN UTAMA: Panggil endpoint /bulanan yang sudah benar
+        // =================================================================
+        const response = await fetch(`/api/laporan/bulanan?bulan=${bulan}&tahun=${tahun}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
+        
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'Gagal mengambil data laporan.' }));
             throw new Error(errorData.message);
         }
-        const data = await response.json();
         
-        window.daftarGuru = data.daftarGuru;
-        window.dataPresensi = data.dataPresensi;
+        // Data yang diterima sudah matang dan siap ditampilkan
+        const dataLaporan = await response.json();
+        
         tabelBody.innerHTML = ''; 
 
-        if (!data.daftarGuru || data.daftarGuru.length === 0) {
+        if (!dataLaporan || dataLaporan.length === 0) {
             tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Tidak ada data guru untuk periode ini.</td></tr>`;
             return;
         }
         
-        data.daftarGuru.forEach((guru, index) => {
-            const presensiGuruIni = data.dataPresensi.filter(p => p.id_guru === guru.id_guru);            
-            const rekap = {
-                // INI BAGIAN YANG DIPERBAIKI
-                hadir: presensiGuruIni.filter(p => p.status === 'Hadir' || p.status === 'Terlambat').length,
-                sakit: presensiGuruIni.filter(p => p.status === 'Sakit').length,
-                izin: presensiGuruIni.filter(p => p.status === 'Izin').length,
-                alpa: presensiGuruIni.filter(p => p.status === 'Alpa').length,
-                terlambat: presensiGuruIni.filter(p => p.status === 'Terlambat').length,
-            };
-            const baris = `<tr><td>${index + 1}</td><td class="text-start">${guru.nama_lengkap}</td><td>${guru.nip_nipppk}</td><td>${rekap.hadir}</td><td>${rekap.sakit}</td><td>${rekap.izin}</td><td>${rekap.alpa}</td><td>${rekap.terlambat}</td></tr>`;
+        // =================================================================
+        // PERUBAHAN UTAMA: Langsung tampilkan data, tidak perlu menghitung lagi
+        // =================================================================
+        dataLaporan.forEach((guru, index) => {
+            const baris = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="text-start">${guru.nama_lengkap}</td>
+                    <td>${guru.nip_nipppk}</td>
+                    <td>${guru.hadir}</td>
+                    <td>${guru.sakit}</td>
+                    <td>${guru.izin}</td>
+                    <td>${guru.alpa}</td>
+                    <td>${guru.terlambat}</td>
+                </tr>`;
             tabelBody.innerHTML += baris;
         });
+
         tombolCetak.disabled = false;
     } catch (error) {
         judulLaporan.textContent = '';
