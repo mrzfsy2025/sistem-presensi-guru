@@ -57,8 +57,8 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
-    window.daftarGuru = null;
-    window.dataPresensi = null;
+//    window.daftarGuru = null;
+//    window.dataPresensi = null;
 
     try {
         // =================================================================
@@ -75,7 +75,7 @@ async function tampilkanLaporan() {
         
         // Data yang diterima sudah matang dan siap ditampilkan
         const dataLaporan = await response.json();
-    //    window.laporanData = dataLaporan;
+        window.laporanData = dataLaporan;
         tabelBody.innerHTML = ''; 
 
         if (!dataLaporan || dataLaporan.length === 0) {
