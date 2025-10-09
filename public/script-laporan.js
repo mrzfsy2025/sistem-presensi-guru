@@ -150,7 +150,7 @@ async function exportLaporanExcel() {
             const sakit = rekapAkurat ? parseInt(rekapAkurat.sakit) : 0;
             const izin = rekapAkurat ? parseInt(rekapAkurat.izin) : 0;
             const alpa = rekapAkurat ? parseInt(rekapAkurat.alpa) : 0;
-            const jumlahTotal = hadir + sakit + izin + alpa;
+            const jumlahTotal = (alpa + sakit) - (hadir + izin);
 
             // Langkah 3: Gabungkan grid harian dengan rekap akurat
             return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, hadir, sakit, izin, alpa, jumlahTotal];
