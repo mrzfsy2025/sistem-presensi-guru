@@ -57,6 +57,8 @@ async function tampilkanLaporan() {
     judulLaporan.textContent = `Laporan Kehadiran Bulan ${namaBulanTerpilih} Tahun ${tahun}`;
     tabelBody.innerHTML = `<tr><td colspan="8" class="text-muted">Memuat data dari server...</td></tr>`;
     tombolCetak.disabled = true;
+//    window.daftarGuru = null;
+//    window.dataPresensi = null;
 
     try {
         // =================================================================
@@ -116,13 +118,10 @@ async function exportLaporanExcel() {
     const tahun = document.getElementById('filter-tahun').value;
     const token = localStorage.getItem('token');
 
-    // 1. Tampilkan status loading pada tombol agar pengguna tahu proses sedang berjalan
     tombolExport.disabled = true;
     tombolExport.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengekspor...`;
 
     try {
-        // 2. Ambil data DETAIL langsung dari API, khusus untuk kebutuhan ekspor
-        console.log("Mengambil data detail untuk ekspor...");
         const response = await fetch(`/api/laporan/harian-detail?bulan=${bulanValue}&tahun=${tahun}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -133,14 +132,15 @@ async function exportLaporanExcel() {
         }
 
         const { daftarGuru, dataPresensi } = await response.json();
+        
+        // DEBUGGING: Baris ini akan menampilkan data mentah di console browser
+        console.log('DATA MENTAH DARI SERVER UNTUK EXCEL:', dataPresensi);
 
         if (!daftarGuru || daftarGuru.length === 0) {
             alert("Tidak ada data guru untuk diekspor pada periode ini.");
-            return; // Hentikan fungsi jika data kosong
+            return;
         }
-        console.log("Data detail berhasil diambil, mulai membuat file Excel.");
 
-        // 3. Logika pembuatan Excel
         const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Tahun Pelajaran ${tahun}-${parseInt(tahun)+1}`];
         const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", ...Array.from({length: 31}, (_, i) => i + 1), "Hadir", "Sakit", "Izin", "Alpa", "Jumlah"];
         const headerGrup = ["", "", "", bulanTeks, ...Array(30).fill(""), "Jumlah Kehadiran"];
@@ -149,16 +149,22 @@ async function exportLaporanExcel() {
             const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
             const barisTanggal = Array(31).fill("");
             
-            dataPresensi.filter(p => p.id_guru === guru.id_guru).forEach(p => {
-                // =======================================================
-                // INI BAGIAN YANG DIPERBAIKI
+            // =======================================================
+            // PERUBAHAN 1: Penggunaan '==' agar lebih fleksibel (angka vs teks)
+            // =======================================================
+            dataPresensi.filter(p => p.id_guru == guru.id_guru).forEach(p => {
                 const tanggal = new Date(p.tanggal).getDate() - 1; 
-                // =======================================================
                 
-                if (p.status === 'Hadir' || p.status === 'Terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
-                else if (p.status === 'Sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
-                else if (p.status === 'Izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
-                else if (p.status === 'Alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
+                // =======================================================
+                // PERUBAHAN 2: Bersihkan data status sebelum dibandingkan
+                // .trim() -> hapus spasi, .toLowerCase() -> ubah jadi huruf kecil
+                // =======================================================
+                const statusBersih = p.status.trim().toLowerCase();
+
+                if (statusBersih === 'hadir' || statusBersih === 'terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
+                else if (statusBersih === 'sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
+                else if (statusBersih === 'izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
+                else if (statusBersih === 'alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
             });
             const jumlahTotal = rekap.Hadir + rekap.Sakit + rekap.Izin + rekap.Alpa;
             return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Alpa, jumlahTotal];
@@ -177,7 +183,6 @@ async function exportLaporanExcel() {
         console.error("Gagal mengekspor data:", error);
         alert("Terjadi kesalahan saat mengekspor data: " + error.message);
     } finally {
-        // 4. Kembalikan tombol ke keadaan semula, baik prosesnya berhasil maupun gagal
         tombolExport.disabled = false;
         tombolExport.innerHTML = '<i class="bi bi-file-earmark-excel-fill me-2"></i>Export ke Excel';
     }
