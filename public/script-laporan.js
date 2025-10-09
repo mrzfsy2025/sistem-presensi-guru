@@ -108,44 +108,78 @@ async function tampilkanLaporan() {
     }
 }
 
-function exportLaporanExcel() {
-    if (!window.dataPresensi || !window.daftarGuru) {
-        alert("Silakan tampilkan laporan terlebih dahulu sebelum mengekspor!");
-        return;
-    }
+async function exportLaporanExcel() {
+    // Referensi ke tombol ekspor
+    const tombolExport = document.getElementById('exportExcelBtn');
 
-    const dataPresensi = window.dataPresensi;
-    const daftarGuru = window.daftarGuru;
-    const bulan = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text.toUpperCase();
+    // Ambil nilai filter saat ini
+    const bulanValue = document.getElementById('filter-bulan').value;
+    const bulanTeks = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text.toUpperCase();
     const tahun = document.getElementById('filter-tahun').value;
+    const token = localStorage.getItem('token');
 
-    const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Tahun Pelajaran ${tahun}-${parseInt(tahun)+1}`];
-    const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", ...Array.from({length: 31}, (_, i) => i + 1), "Hadir", "Sakit", "Izin", "Alpa", "Jumlah"];
-    const headerGrup = ["", "", "", bulan, ...Array(30).fill(""), "Jumlah Kehadiran"];
+    // 1. Tampilkan status loading pada tombol agar pengguna tahu proses sedang berjalan
+    tombolExport.disabled = true;
+    tombolExport.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengekspor...`;
 
-    const dataBody = daftarGuru.map((guru, index) => {
-        const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
-        const barisTanggal = Array(31).fill("");
-        
-        dataPresensi.filter(p => p.id_guru === guru.id_guru).forEach(p => {
-            const tanggal = new Date(p.tanggal).getDate() - 1;
-            // Diperbarui juga di sini untuk konsistensi, meskipun logika Excel mungkin sudah benar
-            if (p.status === 'Hadir' || p.status === 'Terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
-            else if (p.status === 'Sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
-            else if (p.status === 'Izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
-            else if (p.status === 'Alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
+    try {
+        // 2. Ambil data DETAIL langsung dari API, khusus untuk kebutuhan ekspor
+        console.log("Mengambil data detail untuk ekspor...");
+        const response = await fetch(`/api/laporan/harian-detail?bulan=${bulanValue}&tahun=${tahun}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
         });
-        const jumlahTotal = rekap.Hadir + rekap.Sakit + rekap.Izin + rekap.Alpa;
-        return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Alpa, jumlahTotal];
-    });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Gagal mengambil data detail.' }));
+            throw new Error(errorData.message);
+        }
 
-    const dataFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
-    const ws = XLSX.utils.aoa_to_sheet(dataFinal);
-    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 38 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 38 } }, { s: { r: 3, c: 3 }, e: { r: 3, c: 33 } }, { s: { r: 3, c: 34 }, e: { r: 3, c: 38 } }];
-    ws['!cols'] = [{ wch: 4 }, { wch: 30 }, { wch: 22 }, ...Array(31).fill({ wch: 3 }), { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 7 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `Laporan ${bulan}`);
-    XLSX.writeFile(wb, `Laporan_Kehadiran_${bulan}_${tahun}.xlsx`);
+        const { daftarGuru, dataPresensi } = await response.json();
+
+        if (!daftarGuru || daftarGuru.length === 0) {
+            alert("Tidak ada data guru untuk diekspor pada periode ini.");
+            return; // Hentikan fungsi jika data kosong
+        }
+        console.log("Data detail berhasil diambil, mulai membuat file Excel.");
+
+        // 3. Logika pembuatan Excel (tetap sama seperti yang Anda inginkan)
+        const judul = ["Rekapitulasi Kehadiran Guru dan Staff", `Tahun Pelajaran ${tahun}-${parseInt(tahun)+1}`];
+        const headerKolom = ["No", "Nama Lengkap", "NIP/NIPPPK", ...Array.from({length: 31}, (_, i) => i + 1), "Hadir", "Sakit", "Izin", "Alpa", "Jumlah"];
+        const headerGrup = ["", "", "", bulanTeks, ...Array(30).fill(""), "Jumlah Kehadiran"];
+
+        const dataBody = daftarGuru.map((guru, index) => {
+            const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
+            const barisTanggal = Array(31).fill("");
+            
+            dataPresensi.filter(p => p.id_guru === guru.id_guru).forEach(p => {
+                // Menggunakan getUTCDate untuk menghindari masalah timezone
+                const tanggal = new Date(p.tanggal).getUTCDate() - 1;
+                if (p.status === 'Hadir' || p.status === 'Terlambat') { barisTanggal[tanggal] = '✔'; rekap.Hadir++; }
+                else if (p.status === 'Sakit') { barisTanggal[tanggal] = 'S'; rekap.Sakit++; }
+                else if (p.status === 'Izin') { barisTanggal[tanggal] = 'I'; rekap.Izin++; }
+                else if (p.status === 'Alpa') { barisTanggal[tanggal] = 'A'; rekap.Alpa++; }
+            });
+            const jumlahTotal = rekap.Hadir + rekap.Sakit + rekap.Izin + rekap.Alpa;
+            return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Alpa, jumlahTotal];
+        });
+
+        const dataFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
+        const ws = XLSX.utils.aoa_to_sheet(dataFinal);
+        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 38 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 38 } }, { s: { r: 3, c: 3 }, e: { r: 3, c: 33 } }, { s: { r: 3, c: 34 }, e: { r: 3, c: 38 } }];
+        ws['!cols'] = [{ wch: 4 }, { wch: 30 }, { wch: 22 }, ...Array(31).fill({ wch: 3 }), { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 7 }];
+        
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, `Laporan ${bulanTeks}`);
+        XLSX.writeFile(wb, `Laporan_Kehadiran_${bulanTeks}_${tahun}.xlsx`);
+
+    } catch (error) {
+        console.error("Gagal mengekspor data:", error);
+        alert("Terjadi kesalahan saat mengekspor data: " + error.message);
+    } finally {
+        // 4. Kembalikan tombol ke keadaan semula, baik prosesnya berhasil maupun gagal
+        tombolExport.disabled = false;
+        tombolExport.innerHTML = '<i class="bi bi-file-earmark-excel-fill me-2"></i>Export ke Excel';
+    }
 }
 
 async function buatDanTampilkanAkunAwal() {
