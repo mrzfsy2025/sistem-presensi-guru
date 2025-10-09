@@ -25,16 +25,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // BAGIAN FUNGSI-FUNGSI LOGIKA
 // =================================================================
 
-async function fetchDetailDataForExport(bulan, tahun) {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/laporan/harian-detail?bulan=${bulan}&tahun=${tahun}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
+function isiFilter(filterBulan, filterTahun) {
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const tanggalSekarang = new Date();
+    const bulanSekarang = tanggalSekarang.getMonth();
+    const tahunSekarang = tanggalSekarang.getFullYear();
+
+    namaBulan.forEach((nama, index) => {
+        filterBulan.add(new Option(nama, index + 1));
     });
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Gagal mengambil data detail untuk ekspor.' }));
-        throw new Error(errorData.message);
+    filterBulan.value = bulanSekarang + 1;
+
+    for (let i = 0; i < 5; i++) {
+        const tahun = tahunSekarang - i;
+        filterTahun.add(new Option(tahun, tahun));
     }
-    return await response.json();
 }
 
 async function exportLaporanExcel() {
