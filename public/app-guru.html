@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Guru</title>
+    <title>Dasbor-Panel Guru</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body { 
             background-color: #f0f2f5;
-            padding-bottom: 100px; /* Memberi ruang untuk navigasi bawah */
+            padding-bottom: 100px; 
         }
         .main-action-card { min-height: 200px; }
     </style>
 </head>
 <body>
+<div class="container mt-4">
+    <h2 id="ucapan-selamat" class="mb-4"></h2>
+
+    <div class="card">
+        </div>
+</div>
 <div class="modal fade" id="cameraModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -108,7 +114,59 @@
             </ul>
         </div>
     </nav>
-    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("--- Script Ucapan Selamat Dimulai ---");
+
+        const elemenUcapan = document.getElementById('ucapan-selamat');
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error("ERROR saat parsing JWT:", e);
+                return null;
+            }
+        }
+
+        console.log("1. Mencari token di localStorage...");
+        const token = localStorage.getItem('token');
+        let namaPengguna = 'Guru atau Tendik'; 
+
+        if (token) {
+            console.log("2. Token DITEMUKAN:", token);
+            const tokenPayload = parseJwt(token);
+            
+            console.log("3. Hasil decode token (payload):", tokenPayload);
+
+            if (tokenPayload && tokenPayload.nama) {
+                console.log("4. ✅ SUKSES: Properti 'nama_lengkap' ditemukan.");
+                namaPengguna = tokenPayload.nama;
+            } else {
+                console.error("4. ❌ GAGAL: Properti 'nama_lengkap' TIDAK ditemukan di dalam payload token.");
+            }
+        } else {
+            console.warn("2. ⚠️ PERINGATAN: Token tidak ditemukan. Pengguna mungkin belum login.");
+        }
+
+        const jam = new Date().getHours();
+        let ucapanWaktu;
+
+        if (jam >= 0 && jam < 11) { ucapanWaktu = 'pagi'; } 
+        else if (jam >= 11 && jam < 15) { ucapanWaktu = 'siang'; } 
+        else if (jam >= 15 && jam < 19) { ucapanWaktu = 'sore'; } 
+        else { ucapanWaktu = 'malam'; }
+        elemenUcapan.style.fontSize = '16px'; 
+        elemenUcapan.style.color = '#28a745'; // Hijau khas Bootstrap
+        elemenUcapan.textContent = `Selamat ${ucapanWaktu}, ${namaPengguna}. Semoga ${ucapanWaktu} ini Anda berbahagia !`;
+   
+    });
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="app-guru.js"></script>
 </body>

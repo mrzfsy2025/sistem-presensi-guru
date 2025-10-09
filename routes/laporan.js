@@ -7,7 +7,6 @@ const { checkAuth, checkAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-// ... (fungsi getWorkingDaysInMonth biarkan apa adanya) ...
 const getWorkingDaysInMonth = (year, month) => {
     const daysInMonth = new Date(year, month, 0).getDate();
     let workingDays = 0;

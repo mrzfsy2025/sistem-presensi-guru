@@ -161,12 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 tombolPresensi.className = 'btn btn-primary btn-lg w-100'; 
                 break;
             case 'SUDAH_MASUK':
-                statusPresensiElem.textContent = `Anda sudah presensi masuk pada jam ${formatWaktuLokal(status.jam_masuk)}`; 
+                statusPresensiElem.textContent = `Anda sudah presensi masuk pada jam ${(status.jam_masuk)}`; 
                 teksTombolPresensi.textContent = "Presensi Pulang";
                 tombolPresensi.className = 'btn btn-success btn-lg w-100';
                 break;
             case 'SUDAH_PULANG':
-                statusPresensiElem.textContent = `Anda sudah presensi pulang pada jam ${formatWaktuLokal(status.jam_pulang)}`;
+                statusPresensiElem.textContent = `Anda sudah presensi pulang pada jam ${(status.jam_pulang)}`;
                 teksTombolPresensi.textContent = "Selesai";
                 tombolPresensi.className = 'btn btn-secondary btn-lg w-100';
                 tombolPresensi.disabled = true;
@@ -275,8 +275,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 riwayatList.innerHTML += `
                     <tr>
                         <td>${tanggal}</td>
-                        <td><span class="badge bg-primary">${formatWaktuLokal(item.jam_masuk)}</span></td>
-                        <td><span class="badge bg-success">${formatWaktuLokal(item.jam_pulang)}</span></td>
+                        <td><span class="badge bg-primary">${(item.jam_masuk)}</span></td>
+                        <td><span class="badge bg-success">${(item.jam_pulang)}</span></td>
                         <td>${item.status}</td>
                     </tr>
                 `;

@@ -191,8 +191,8 @@
                 aktivitasList.innerHTML = ''; // Kosongkan list
                 if (data.aktivitas_terkini.length > 0) {
                 data.aktivitas_terkini.forEach(aktivitas => {
-                    // Gunakan fungsi formatWaktuLokal yang sudah ada
-                    const jamTampil = formatWaktuLokal(aktivitas.waktu_aksi); 
+
+                    const jamTampil = aktivitas.waktu_aksi; 
                     let badge;
 
                     if (aktivitas.jenis_aktivitas === 'Presensi Masuk') {
@@ -310,16 +310,8 @@ function formatWaktuLokal(waktuUTC) {
     minute: '2-digit',
     hour12: false 
   };
-
   return tanggal.toLocaleTimeString('id-ID', options);
 }
-
-// --- CONTOH PENGGUNAAN ---
-// Misal, waktu dari database adalah '03:17:00' (UTC)
-// const waktuDariDatabase = '03:17:00';
-// const waktuTampil = formatWaktuLokal(waktuDariDatabase);
-// console.log(waktuTampil);
-
 </script>
 </body>
 </html>
