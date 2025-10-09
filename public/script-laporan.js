@@ -161,8 +161,8 @@ async function exportLaporanExcel() {
             return [index + 1, guru.nama_lengkap, guru.nip_nipppk, ...barisTanggal, hadir, sakit, izin, alpa, jumlahTotal];
         });
 
-        const dataFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
-        const ws = XLSX.utils.aoa_to_sheet(dataFinal);
+        const dataRekapFinal = [[judul[0]], [judul[1]], [], headerGrup, headerKolom, ...dataBody];
+        const ws = XLSX.utils.aoa_to_sheet(dataRekapFinal);
         ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 38 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 38 } }, { s: { r: 3, c: 3 }, e: { r: 3, c: 33 } }, { s: { r: 3, c: 34 }, e: { r: 3, c: 38 } }];
         ws['!cols'] = [{ wch: 4 }, { wch: 30 }, { wch: 22 }, ...Array(31).fill({ wch: 3 }), { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 7 }];
         
