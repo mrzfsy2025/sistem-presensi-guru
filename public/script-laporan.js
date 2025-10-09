@@ -77,7 +77,7 @@ async function tampilkanLaporan() {
         
         // Data yang diterima sudah matang dan siap ditampilkan
         const dataLaporan = await response.json();
-        
+        window.laporanData = dataLaporan;
         tabelBody.innerHTML = ''; 
 
         if (!dataLaporan || dataLaporan.length === 0) {
