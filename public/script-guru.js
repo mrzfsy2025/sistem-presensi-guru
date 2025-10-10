@@ -41,7 +41,7 @@ async function muatDataGuru() {
         }
 
         paraGuru.forEach(guru => {
-            const statusBadge = guru.status === 'Aktif' 
+            const statusBadge = guru.status === 'Tidak Aktif' 
                 ? `<span class="badge bg-success">${guru.status}</span>`
                 : `<span class="badge bg-secondary">${guru.status}</span>`;
             

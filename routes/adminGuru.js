@@ -109,45 +109,56 @@ router.put('/:id_guru', async (req, res) => {
 // METHOD: DELETE, ENDPOINT: /api/admin/guru/:id_guru
 // =================================================================
 router.delete('/:id_guru', [checkAuth, checkAdmin], async (req, res) => {
-    const guruId = req.params.id;
+    const guruId = req.params.id_guru;
     
-    // Gunakan koneksi dari pool untuk transaksi yang aman
     let connection;
     try {
         connection = await db.getConnection();
-        await connection.beginTransaction(); // 1. Mulai transaksi
+        await connection.beginTransaction(); 
 
-        // 2. Hapus semua data(presensi, izin) terlebih dahulu
+        // Hapus semua data terkait terlebih dahulu
         console.log(`Menghapus data presensi untuk guru ID: ${guruId}`);
         await connection.execute('DELETE FROM presensi WHERE id_guru = ?', [guruId]);
 
         console.log(`Menghapus data izin/sakit untuk guru ID: ${guruId}`);
         await connection.execute('DELETE FROM izin_sakit_tugas WHERE id_guru = ?', [guruId]);
 
-        // (Jika ada tabel lain yang berelasi dengan guru, tambahkan query DELETE di sini)
+        // =================================================================
+        // PERIKSA DI SINI: Jika ada tabel lain yang berelasi dengan guru,
+        // tambahkan query DELETE untuk tabel tersebut di sini.
+        // Contoh: await connection.execute('DELETE FROM jadwal_mengajar WHERE id_guru = ?', [guruId]);
+        // =================================================================
 
-        // 3. Setelah semua databersih, hapus data induk (guru)
+        // Setelah semua data terkait bersih, hapus data induk (guru)
         console.log(`Menghapus data utama guru ID: ${guruId}`);
         const [result] = await connection.execute('DELETE FROM guru WHERE id_guru = ?', [guruId]);
 
-        // Jika ID guru tidak ditemukan di tabel guru
         if (result.affectedRows === 0) {
-            await connection.rollback(); // Batalkan semua operasi sebelumnya
+            await connection.rollback(); 
             return res.status(404).json({ message: 'Guru tidak ditemukan.' });
         }
 
-        await connection.commit(); // 4. Jika semua berhasil, simpan perubahan secara permanen
+        await connection.commit(); 
         res.status(200).json({ message: 'Data guru dan semua data terkait berhasil dihapus permanen.' });
 
-  } catch (error) {
-    console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:");
-    console.error(error); 
-    if (connection) await connection.rollback();
-    // Perhatikan baris ini hanya mengirim pesan generik
-    res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
+    } catch (error) {
+        console.error("GAGAL HAPUS GURU! Error terdeteksi di blok catch:", error);
+        if (connection) await connection.rollback();
 
-  } finally {
-        // 6. Selalu lepaskan koneksi kembali ke pool
+        // =================================================================
+        // PERBAIKAN UTAMA ADA DI SINI: Error handling yang lebih spesifik
+        // =================================================================
+        // Cek spesifik untuk error foreign key constraint (kode error umum untuk MySQL)
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+            return res.status(409).json({ 
+                message: 'Gagal menghapus. Data guru ini masih terpakai di data lain (misalnya jadwal mengajar, data wali kelas, dll.) dan tidak dapat dihapus.' 
+            });
+        }
+        
+        // Pesan error default jika bukan karena foreign key
+        res.status(500).json({ message: 'Gagal menghapus data guru karena kesalahan server.' }); 
+
+    } finally {
         if (connection) connection.release();
     }
 });
