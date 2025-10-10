@@ -163,8 +163,17 @@
         else { ucapanWaktu = 'malam'; }
         elemenUcapan.style.fontSize = '16px'; 
         elemenUcapan.style.color = '#28a745'; // Hijau khas Bootstrap
-        elemenUcapan.textContent = `Selamat ${ucapanWaktu}, ${namaPengguna}. Semoga ${ucapanWaktu} ini Anda berbahagia !`;
-   
+        const teksLengkap = `Selamat ${ucapanWaktu}, ${namaPengguna}. Semoga ${ucapanWaktu} ini Anda berbahagia !`;
+        let index = 0;
+
+        function ketikSapaan() {
+            if (index < teksLengkap.length) {
+                elemenUcapan.textContent += teksLengkap.charAt(index);
+                index++;
+                setTimeout(ketikSapaan, 100); // Kecepatan ketik (100 milidetik)
+            }
+        }
+        ketikSapaan(); 
     });
 </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
