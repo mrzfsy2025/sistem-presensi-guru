@@ -22,20 +22,29 @@
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-/*            color: white; */
         }
         .konten-tengah {
-            color:cyan; 
+            color:aquamarine; 
             display: flex;
             flex-direction: column;
             justify-content: center;
-            opacity: 0.4; 
-            align-items: center;
             height: 100%;
             text-align: center;
+        .card-text {
+            color:whitesmoke; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0.5; 
+            align-items: center;
+            height: 70%;
+            font-size: 1em; 
+            text-align: justify;
+        }
         }
         .smaller-h1 {
         font-size: 1.6em; 
+        font-weight: bold;
         color:gold; 
         }
         .btn-custom {
@@ -46,11 +55,14 @@
         .marquee-container {
             width: 100%;
             overflow: hidden;
-            padding: 10px 0;
+/*            background-color: #6493bd; */
+            padding: 20px 0;
+/*            border: 1px solid #d4eaff; */
+/*            box-sizing: border-box; */
         }
         .marquee-text {
-            color:cyan;
-            font-size: 18px;
+            color:gold;
+            font-size: 25px;
             font-weight: bold;
             font-family: sans-serif;
             white-space: nowrap;
@@ -58,7 +70,7 @@
             animation-play-state: paused;
         }
         .marquee-text.scrolling {
-            padding-left:30%;
+            padding-left:40%;
             animation: scroll-left 5s linear;
             animation-play-state: running; 
         }
@@ -66,11 +78,11 @@
             animation-play-state: paused;
         }
         @keyframes scroll-left {
-            100% {
+            50% {
             transform: translateX(0);
             }
-            40% {
-            transform: translateX(-60%);
+            50% {
+            transform: translateX(-50%);
             }
         }
     </style>
@@ -79,32 +91,37 @@
 
     <div class="bg-halaman-utama">
         <div class="container konten-tengah">
-            <h4 class="display-4 fw-bold">Sistem Presensi Online</h4>
-            <p> <a href="info-sdn27.html" class="smaller-h1" Style="text-decoration: none;">
-                    <i class="lead my-4 fw-bold"></i>SEKOLAH DASAR NEGERI 27 KOTA BENGKULU</a></p>
-            <div class="mt-4">
-                <a href="login-admin.html" class="btn btn-primary btn-custom">
-                    <i class="bi bi-person-gear me-2"></i>Login Admin
-                </a>
-                <a href="login-guru.html" class="btn btn-light btn-custom">
-                    <i class="bi bi-person-fill me-2"></i>Login Guru
-                </a>
-            </div>
-                    <p> <h4 class="card-title">
-                            <div class="marquee-text">
-                                Selamat Datang 
-                            </div> 
-                    </h4> </p>
-              <div class="card bg-blue bg-opacity-10 mt-0" style="max-width: 800px;">
+            <h4 class="display-4 fw-bold">Selamat Datang</h4>
                 <div class="card-body">
-Aplikasi Presensi Online ini dikembangkan sebagai inovasi sekolah dalam menangani kehadiran guru & staf. Dengan ini diharapkan dapat memudahkan melakukan presensi harian. Terima kasih, semoga bermanfaat.<p>Hormat kami @ Zulfikri, S.Pd</p>
-                </div>
+                    <h4 class="card-title">
+                            <div class="marquee-text">Sekolah Dasar Negeri 27 Kota Bengkulu</div>
+                    </h4>
+<pre><p class="card-text" > 
+Alamat  : Jalan Putri gading Cempaka Kel. Penurunan
+          Kec. Ratu Samban Kota Bengkulu
+          Prov. Bengkulu 
+UNOR    : Pemerintah Kota Bengkulu
+OPD     : Dinas Pendidikan & kebudayaan Kota Bengkulu
+Sat-Ker : Sekolah Dasar Negeri 27 Kota Bengkulu
+          NPSN : 10702556
+          Kepala Sekolah    : Zulfikri, S.Pd (programer)
+          Bendahara         : Teti Yuliana, S.Pd
+          Operator          : Rahman Nrsalam, S.Pd
+          Pustakawan        : Suliyanti Puspita Nengsih,A.Md
+          Jumlah Guru       : 14 Orang
+          Jenjang Pendidikan    : Dasar
+          Jenis Pendidikan      : Forml
+          Jumlah Siswa          : &#177 200 Orang  
+          Sumber Dana           : BOS Reguler
+</p></pre>
+            <p> <a href="index.html" class="smaller-h1" Style="text-decoration: none;">
+                    <i class="lead my-4 fw-bold"></i>Terima kasih ... </a></p>
                 </div>
             </div>
         </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-
   const marqueeText = document.querySelector('.marquee-text');
   let loopCount = 0;
   const maxLoops = 2;
